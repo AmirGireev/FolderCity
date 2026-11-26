@@ -1,0 +1,28 @@
+{
+  "description": "Testbaum für beide Einlese-Wege. Text = String, Ordner = Objekt, Binärdatei = {\"$bytes\": [...]}. Wird in Backend- und Frontend-Tests zu echten Dateien bzw. simulierten Browser-Einträgen gemacht; das erwartete Ergebnis steht in scan.expected.json.",
+  "name": "demo",
+  "tree": {
+    "README.md": "# Demo\n",
+    "empty.txt": "",
+    "blank.txt": "  \n\t\n",
+    "bom.txt": "﻿hallo",
+    "src": {
+      "main.py": "print('hi')\n",
+      "utils": {}
+    },
+    "assets": {
+      "logo.png": { "$bytes": [137, 80, 78, 71] },
+      "data.dat": { "$bytes": [0, 1, 2, 3] }
+    },
+    "emptyDir": {},
+    "onlyEmptyChildren": { "a": {}, "b": { "c": {} } },
+    "withEmptyFile": { "nothing.txt": "" },
+    "onlyIgnored": { "node_modules": { "x.js": "x" } },
+    "node_modules": { "lib.js": "module.exports = 1;" },
+    ".git": { "HEAD": "ref: refs/heads/main\n" },
+    "__pycache__": { "a.pyc": { "$bytes": [1, 2] } },
+    ".env": "SECRET=1",
+    ".env.local": "SECRET=2",
+    "prod.env": "SECRET=3"
+  }
+}

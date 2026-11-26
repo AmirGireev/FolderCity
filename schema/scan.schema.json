@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://foldercity.dev/schema/scan.schema.json",
+  "title": "ScanResult",
+  "description": "Einheitliches Scan-Format (Schritt 2): lokaler Ordner und GitHub-Import liefern genau dieses JSON. Eingabe für das Stadt-Layout (Schritt 3).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "rootName", "directories", "emptyDirectories", "files", "truncated"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "rootName": { "type": "string", "description": "Name des gescannten Wurzelordners." },
+    "directories": {
+      "type": "array",
+      "description": "Alle Ordnerpfade (relativ, mit '/'), ohne die Wurzel selbst, sortiert.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "emptyDirectories": {
+      "type": "array",
+      "description": "Teilmenge von directories: keine Dateien und nur leere Unterordner (rekursiv).",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "files": { "type": "array", "items": { "$ref": "#/$defs/ScanFile" } },
+    "truncated": {
+      "type": "boolean",
+      "description": "true, wenn wegen Datei-Limit oder Tiefen-Limit nicht alles eingelesen wurde."
+    }
+  },
+  "$defs": {
+    "ScanFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "size", "content", "omitted", "isEmpty"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "size": { "type": "integer", "minimum": 0, "description": "Größe in Bytes." },
+        "content": { "type": ["string", "null"], "description": "Textinhalt; null bei Binärdateien und zu großen Dateien." },
+        "omitted": { "enum": ["binary", "too_large", null], "description": "Warum content fehlt." },
+        "isEmpty": { "type": "boolean", "description": "0 Bytes oder nur Leerzeichen." }
+      }
+    }
+  }
+}

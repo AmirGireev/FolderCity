@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "1.0",
+  "rootName": "demo",
+  "directories": [
+    "assets",
+    "emptyDir",
+    "onlyEmptyChildren",
+    "onlyEmptyChildren/a",
+    "onlyEmptyChildren/b",
+    "onlyEmptyChildren/b/c",
+    "onlyIgnored",
+    "src",
+    "src/utils",
+    "withEmptyFile"
+  ],
+  "emptyDirectories": [
+    "emptyDir",
+    "onlyEmptyChildren",
+    "onlyEmptyChildren/a",
+    "onlyEmptyChildren/b",
+    "onlyEmptyChildren/b/c",
+    "onlyIgnored",
+    "src/utils"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "size": 7,
+      "content": "# Demo\n",
+      "omitted": null,
+      "isEmpty": false
+    },
+    {
+      "path": "assets/data.dat",
+      "size": 4,
+      "content": null,
+      "omitted": "binary",
+      "isEmpty": false
+    },
+    {
+      "path": "assets/logo.png",
+      "size": 4,
+      "content": null,
+      "omitted": "binary",
+      "isEmpty": false
+    },
+    {
+      "path": "blank.txt",
+      "size": 5,
+      "content": "  \n\t\n",
+      "omitted": null,
+      "isEmpty": true
+    },
+    {
+      "path": "bom.txt",
+      "size": 8,
+      "content": "﻿hallo",
+      "omitted": null,
+      "isEmpty": false
+    },
+    {
+      "path": "empty.txt",
+      "size": 0,
+      "content": "",
+      "omitted": null,
+      "isEmpty": true
+    },
+    {
+      "path": "src/main.py",
+      "size": 12,
+      "content": "print('hi')\n",
+      "omitted": null,
+      "isEmpty": false
+    },
+    {
+      "path": "withEmptyFile/nothing.txt",
+      "size": 0,
+      "content": "",
+      "omitted": null,
+      "isEmpty": true
+    }
+  ],
+  "truncated": false
+}

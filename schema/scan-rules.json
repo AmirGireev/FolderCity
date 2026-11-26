@@ -1,0 +1,22 @@
+{
+  "description": "Gemeinsame Regeln für das Einlesen (Schritt 2). Frontend (TypeScript) und Backend (Python) halten Kopien davon; Tests in beiden Sprachen prüfen, dass die Kopien dieser Datei entsprechen.",
+  "skipDirectories": ["node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__"],
+  "skipFiles": {
+    "exact": [".env"],
+    "prefixes": [".env."],
+    "suffixes": [".env"]
+  },
+  "binaryExtensions": [
+    ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".tif", ".tiff", ".avif", ".heic", ".psd",
+    ".mp4", ".mov", ".avi", ".mkv", ".webm", ".mp3", ".wav", ".ogg", ".flac", ".aac",
+    ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".7z", ".rar", ".jar", ".war",
+    ".pdf", ".exe", ".dll", ".so", ".dylib", ".bin", ".class", ".o", ".a", ".pyc", ".wasm",
+    ".woff", ".woff2", ".ttf", ".otf", ".eot", ".sqlite", ".db", ".iso", ".dmg"
+  ],
+  "limits": {
+    "maxFileBytes": 1048576,
+    "maxFiles": 400,
+    "maxDepth": 50
+  },
+  "whitespace": " \t\n\r\f\u000b"
+}

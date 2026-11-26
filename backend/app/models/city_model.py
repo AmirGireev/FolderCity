@@ -1,9 +1,4 @@
-"""Pydantic-Abbild des CityModel-Vertrags.
 
-Quelle der Wahrheit ist ``schema/citymodel.schema.json``. Die Tests in
-``tests/test_city_model.py`` prüfen, dass dieses Modell dazu passt.
-Feldnamen sind bewusst camelCase, damit das JSON 1:1 dem Schema entspricht.
-"""
 
 from __future__ import annotations
 
@@ -34,7 +29,6 @@ class Dimensions(_Strict):
 
 
 class Metrics(BaseModel):
-    # Weitere numerische Metriken sind erlaubt (siehe Schema).
     model_config = ConfigDict(extra="allow")
 
     sizeBytes: Optional[int] = Field(default=None, ge=0)
@@ -84,11 +78,6 @@ class CityModel(_Strict):
     architecture: list[ArchitectureNode]
 
     def to_json_dict(self) -> dict[str, Union[str, list, dict]]:
-        """JSON-Ausgabe ohne leere optionale Felder (passt zum Schema).
-
-        ``parentId`` ist Pflicht und darf ``null`` sein, deshalb wird es nach
-        ``exclude_none`` wiederhergestellt.
-        """
         data = self.model_dump(mode="json", exclude_none=True)
         for node_dict, node in zip(data["nodes"], self.nodes):
             node_dict["parentId"] = node.parentId
