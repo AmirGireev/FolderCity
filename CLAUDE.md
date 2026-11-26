@@ -40,3 +40,12 @@ Niemals anfassen oder durchsuchen: `node_modules`, `.venv`, `venv`,
   (Frontend: http://localhost:3000, Backend: http://localhost:8000/health)
 - Backend-Tests: `cd backend && pip install -r requirements-dev.txt && pytest`
 - Frontend-Tests: `cd frontend && npm install && npm test`
+
+## Nach jedem Schritt liefern
+1. **Zusammenfassung:** kurz, was im Schritt erledigt wurde und ob „Fertig wenn“ erfüllt ist.
+2. **Commit-Nachricht:** fertiger Vorschlag (Titelzeile + Stichpunkte) zum Kopieren.
+3. **Datei-Übersicht:** zu jeder erstellten oder geänderten Datei 1–3 Sätze.
+
+## Kommunikation
+- Sonstige Kommentare und Chat-Nachrichten nur 1–3 Wörter lang.
+  Ausgenommen: Zusammenfassung, Commit-Nachricht und Datei-Übersicht.

@@ -12,3 +12,7 @@ venv/
 .pytest_cache/
 *.tsbuildinfo
 next-env.d.ts
+
+# Lokale Arbeitsdateien (nicht ins Repo)
+CLAUDE.md
+docs/FolderCity - Step by step Guide.pdf
