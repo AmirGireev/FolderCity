@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "source": { "kind": "demo", "name": "minimal" },
+  "rootId": "root",
+  "nodes": [
+    {
+      "id": "root", "path": "", "name": "minimal", "type": "folder", "parentId": null,
+      "dimensions": { "position": { "x": 0, "y": 0, "z": 0 }, "width": 20, "depth": 20, "height": 0.5 },
+      "metrics": { "fileCount": 3 }
+    },
+    {
+      "id": "src", "path": "src", "name": "src", "type": "folder", "parentId": "root",
+      "dimensions": { "position": { "x": 1, "y": 0.5, "z": 1 }, "width": 10, "depth": 18, "height": 0.5 },
+      "metrics": { "fileCount": 2 }
+    },
+    {
+      "id": "src/main.py", "path": "src/main.py", "name": "main.py", "type": "file", "parentId": "src",
+      "dimensions": { "position": { "x": 2, "y": 1, "z": 2 }, "width": 3, "depth": 3, "height": 12 },
+      "metrics": { "sizeBytes": 812, "lines": 40, "extension": ".py", "language": "python" }
+    },
+    {
+      "id": "src/db.py", "path": "src/db.py", "name": "db.py", "type": "file", "parentId": "src",
+      "dimensions": { "position": { "x": 6, "y": 1, "z": 2 }, "width": 3, "depth": 3, "height": 6 },
+      "metrics": { "sizeBytes": 300, "lines": 15, "extension": ".py", "language": "python" }
+    },
+    {
+      "id": "src/__init__.py", "path": "src/__init__.py", "name": "__init__.py", "type": "empty_file", "parentId": "src",
+      "dimensions": { "position": { "x": 2, "y": 1, "z": 7 }, "width": 2, "depth": 2, "height": 0.1 },
+      "metrics": { "sizeBytes": 0, "lines": 0, "extension": ".py" }
+    },
+    {
+      "id": "assets", "path": "assets", "name": "assets", "type": "empty_folder", "parentId": "root",
+      "dimensions": { "position": { "x": 12, "y": 0.5, "z": 1 }, "width": 6, "depth": 6, "height": 0 },
+      "metrics": { "fileCount": 0 }
+    }
+  ],
+  "edges": [
+    { "source": "src/main.py", "target": "src/db.py", "line": 1 }
+  ],
+  "architecture": [
+    { "id": "api:GET /items", "kind": "api", "label": "GET /items", "fileId": "src/main.py", "line": 10 },
+    { "id": "db:postgres", "kind": "database", "label": "PostgreSQL", "fileId": "src/db.py", "line": 3 }
+  ]
+}

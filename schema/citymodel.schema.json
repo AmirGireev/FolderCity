@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://foldercity.dev/schema/citymodel.schema.json",
+  "title": "CityModel",
+  "description": "Vertrag zwischen Backend und Frontend: eine Code-Basis als Stadt. Auch das Format der vorberechneten Demos.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "rootId", "nodes", "edges", "architecture"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "source": {
+      "type": "object",
+      "description": "Woher die Daten stammen (lokaler Ordner oder GitHub-Repo).",
+      "additionalProperties": false,
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "enum": ["local", "github", "demo"] },
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "hash": { "type": "string" }
+      }
+    },
+    "rootId": { "type": "string", "description": "id des Wurzel-Ordners in nodes." },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
+    "edges": { "type": "array", "items": { "$ref": "#/$defs/ImportEdge" } },
+    "architecture": { "type": "array", "items": { "$ref": "#/$defs/ArchitectureNode" } }
+  },
+  "$defs": {
+    "NodeType": {
+      "enum": ["folder", "file", "empty_folder", "empty_file"]
+    },
+    "Position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number", "description": "Höhe der Grundfläche (Verschachtelungsebene)." },
+        "z": { "type": "number" }
+      }
+    },
+    "Dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["position", "width", "depth", "height"],
+      "properties": {
+        "position": { "$ref": "#/$defs/Position" },
+        "width": { "type": "number", "minimum": 0 },
+        "depth": { "type": "number", "minimum": 0 },
+        "height": { "type": "number", "minimum": 0 }
+      }
+    },
+    "Metrics": {
+      "type": "object",
+      "description": "Deterministische Messwerte. Weitere numerische Metriken sind erlaubt.",
+      "properties": {
+        "sizeBytes": { "type": "integer", "minimum": 0 },
+        "lines": { "type": "integer", "minimum": 0 },
+        "fileCount": { "type": "integer", "minimum": 0 },
+        "extension": { "type": "string" },
+        "language": { "type": "string" }
+      },
+      "additionalProperties": { "type": "number" }
+    },
+    "Node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "name", "type", "parentId", "dimensions", "metrics"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "description": "Pfad relativ zur Wurzel, mit '/' getrennt. Wurzel = ''." },
+        "name": { "type": "string" },
+        "type": { "$ref": "#/$defs/NodeType" },
+        "parentId": { "type": ["string", "null"] },
+        "dimensions": { "$ref": "#/$defs/Dimensions" },
+        "metrics": { "$ref": "#/$defs/Metrics" }
+      }
+    },
+    "ImportEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "target"],
+      "properties": {
+        "source": { "type": "string", "description": "id der importierenden Datei." },
+        "target": { "type": "string", "description": "id der importierten Datei." },
+        "line": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ArchitectureKind": {
+      "enum": ["api", "database", "external", "server"]
+    },
+    "ArchitectureNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "label", "fileId", "line"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "$ref": "#/$defs/ArchitectureKind" },
+        "label": { "type": "string" },
+        "fileId": { "type": "string", "description": "id der Datei (Node), in der das Element gefunden wurde." },
+        "line": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
