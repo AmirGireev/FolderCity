@@ -1,3 +1,4 @@
+// Counts folders and files for the display.
 import type { ScanResult } from "../types/scan";
 
 export interface ScanSummary {
@@ -5,7 +6,7 @@ export interface ScanSummary {
   emptyFolders: number;
   files: number;
   emptyFiles: number;
-  /** Dateien ohne Inhalt (Binärdateien und zu große Dateien). */
+
   withoutContent: number;
   truncated: boolean;
 }

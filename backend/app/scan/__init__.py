@@ -1,5 +1,4 @@
-"""Einlesen von Ordnern (Schritt 2). Nur Text lesen, nie etwas ausführen."""
-
+# Exports the main parts of the folder scan.
 from .model import ScanFile, ScanResult
 from .walker import DEFAULT_LIMITS, ScanLimits, scan_directory
 

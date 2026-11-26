@@ -1,4 +1,4 @@
-
+// The CityModel as TypeScript types.
 export const NODE_TYPES = ["folder", "file", "empty_folder", "empty_file"] as const;
 export type NodeType = (typeof NODE_TYPES)[number];
 
@@ -10,6 +10,7 @@ export type SourceKind = (typeof SOURCE_KINDS)[number];
 
 export interface Position {
   x: number;
+
   y: number;
   z: number;
 }
@@ -27,11 +28,13 @@ export interface Metrics {
   fileCount?: number;
   extension?: string;
   language?: string;
+
   [metric: string]: number | string | undefined;
 }
 
 export interface CityNode {
   id: string;
+
   path: string;
   name: string;
   type: NodeType;

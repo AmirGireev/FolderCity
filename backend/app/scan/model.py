@@ -1,5 +1,4 @@
-"""Das Scan-Format. Quelle der Wahrheit: schema/scan.schema.json."""
-
+# The scan format as a Pydantic model.
 from __future__ import annotations
 
 from typing import Literal, Optional

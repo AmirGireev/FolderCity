@@ -1,5 +1,4 @@
-"""Regeln fürs Einlesen. Kopie von schema/scan-rules.json (ein Test prüft das)."""
-
+# Scan rules: what is ignored and which limits apply.
 SKIP_DIRECTORIES = frozenset(
     {"node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__"}
 )
@@ -22,7 +21,6 @@ MAX_FILE_BYTES = 1_048_576
 MAX_FILES = 400
 MAX_DEPTH = 50
 
-# Nur diese Zeichen zählen als "Leerzeichen" (gleich im Frontend).
 WHITESPACE = " \t\n\r\f\v"
 
 
@@ -31,7 +29,6 @@ def should_skip_directory(name: str) -> bool:
 
 
 def should_skip_file(name: str) -> bool:
-    """Geheimnisse (.env-Dateien) werden nie übertragen."""
     return (
         name in SKIP_FILE_EXACT
         or name.startswith(SKIP_FILE_PREFIXES)

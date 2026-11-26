@@ -1,5 +1,5 @@
 {
-  "description": "Testbaum für beide Einlese-Wege. Text = String, Ordner = Objekt, Binärdatei = {\"$bytes\": [...]}. Wird in Backend- und Frontend-Tests zu echten Dateien bzw. simulierten Browser-Einträgen gemacht; das erwartete Ergebnis steht in scan.expected.json.",
+  "description": "Test tree for both scan ways. Text = string, folder = object, binary file = {\"$bytes\": [...]}. Turned into real files in the backend tests and into simulated browser entries in the frontend tests. The expected result is in scan.expected.json.",
   "name": "demo",
   "tree": {
     "README.md": "# Demo\n",

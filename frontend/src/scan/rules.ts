@@ -1,5 +1,4 @@
-/** Regeln fürs Einlesen. Kopie von schema/scan-rules.json (ein Test prüft das). */
-
+// Scan rules: what is ignored and which limits apply.
 export const SKIP_DIRECTORIES: readonly string[] = [
   "node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__",
 ];
@@ -28,7 +27,7 @@ export const DEFAULT_LIMITS: ScanLimits = {
   maxDepth: 50,
 };
 
-/** Nur diese Zeichen zählen als "Leerzeichen" (gleich im Backend). */
+
 export const WHITESPACE = " \t\n\r\f\v";
 
 const skipDirectories = new Set(SKIP_DIRECTORIES);
@@ -38,7 +37,7 @@ export function shouldSkipDirectory(name: string): boolean {
   return skipDirectories.has(name);
 }
 
-/** Geheimnisse (.env-Dateien) werden nie übertragen. */
+
 export function shouldSkipFile(name: string): boolean {
   return (
     SKIP_FILE_EXACT.includes(name) ||

@@ -1,5 +1,4 @@
-"""Die Regeln im Backend müssen schema/scan-rules.json entsprechen."""
-
+# Checks that the backend rules match scan-rules.json.
 import pytest
 
 from app.scan import rules
@@ -47,5 +46,5 @@ def test_skipped_directories(name):
 
 def test_binary_extension_is_case_insensitive_and_needs_a_name():
     assert rules.has_binary_extension("PHOTO.JPG")
-    assert not rules.has_binary_extension(".png")  # Dateiname ohne Namen, nur Endung
+    assert not rules.has_binary_extension(".png")
     assert not rules.has_binary_extension("readme")

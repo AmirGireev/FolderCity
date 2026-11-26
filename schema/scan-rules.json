@@ -1,5 +1,5 @@
 {
-  "description": "Gemeinsame Regeln für das Einlesen (Schritt 2). Frontend (TypeScript) und Backend (Python) halten Kopien davon; Tests in beiden Sprachen prüfen, dass die Kopien dieser Datei entsprechen.",
+  "description": "Shared scan rules. Frontend (TypeScript) and backend (Python) keep copies of them; tests in both languages check that the copies match this file.",
   "skipDirectories": ["node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__"],
   "skipFiles": {
     "exact": [".env"],

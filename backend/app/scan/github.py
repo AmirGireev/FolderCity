@@ -1,13 +1,4 @@
-"""GitHub-Import: öffentliches Repo flach klonen, einlesen, wieder löschen.
-
-Sicherheit (fremder Code wird nie ausgeführt):
-- nur https://github.com/<besitzer>/<repo> ohne Zusatz (kein Login, kein Port, keine Query)
-- git wird ohne Shell aufgerufen, Hooks aus, keine Submodule, keine Symlinks,
-  kein Git-LFS, keine Nutzer- oder System-Konfiguration
-- Zeitlimit und Größenlimit; danach wird das temporäre Verzeichnis gelöscht
-- die Dateien werden nur gelesen (siehe walker.py)
-"""
-
+# Shallow-clones a public GitHub repo, scans it, and deletes it again.
 from __future__ import annotations
 
 import os
@@ -30,7 +21,6 @@ _GITHUB_URL = re.compile(
 
 
 class GithubImportError(Exception):
-    """Fehler mit passendem HTTP-Status für die API."""
 
     def __init__(self, status_code: int, message: str):
         super().__init__(message)
@@ -48,7 +38,6 @@ DEFAULT_CLONE_LIMITS = CloneLimits()
 
 
 def parse_github_url(url: str) -> tuple[str, str]:
-    """Prüft die URL und gibt (besitzer, repo) zurück. Wirft GithubImportError(400)."""
     match = _GITHUB_URL.match(url.strip())
     if not match:
         raise GithubImportError(
@@ -93,13 +82,12 @@ def _safe_git_env() -> dict[str, str]:
         "LC_ALL": "C",
     }
     for key in ("HTTPS_PROXY", "https_proxy", "SSL_CERT_FILE", "GIT_SSL_CAINFO"):
-        if key in os.environ:  # nur für Umgebungen mit Proxy
+        if key in os.environ:
             env[key] = os.environ[key]
     return env
 
 
 def _remove_tree(path: str) -> None:
-    """Löscht ein Verzeichnis, auch wenn Dateien schreibgeschützt sind (Git-Objekte unter Windows)."""
 
     def retry(func, failed_path, _exc):
         os.chmod(failed_path, stat.S_IWRITE)
@@ -112,7 +100,6 @@ def _remove_tree(path: str) -> None:
 
 
 def shallow_clone(clone_url: str, target: Path, limits: CloneLimits = DEFAULT_CLONE_LIMITS) -> None:
-    """git clone --depth 1 mit Zeit- und Größenlimit."""
     cmd = [
         "git",
         "-c", "core.hooksPath=" + os.devnull,
@@ -161,7 +148,6 @@ def shallow_clone(clone_url: str, target: Path, limits: CloneLimits = DEFAULT_CL
 def import_repository(
     clone_url: str, repo_name: str, limits: CloneLimits = DEFAULT_CLONE_LIMITS
 ) -> ScanResult:
-    """Klont clone_url in ein temporäres Verzeichnis, liest es ein und löscht es wieder."""
     tmp = tempfile.mkdtemp(prefix="foldercity-clone-")
     try:
         target = Path(tmp) / repo_name

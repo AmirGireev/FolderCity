@@ -1,3 +1,4 @@
+# Tests scanning folders.
 import os
 import sys
 
@@ -15,7 +16,6 @@ def test_fixture_matches_expected_json(tmp_path):
 
 
 def test_key_order_is_stable(tmp_path):
-    """Gleiche Schlüsselreihenfolge wie im Frontend, damit exportierte JSON-Dateien gleich aussehen."""
     data = scan_directory(make_fixture(tmp_path)).model_dump(mode="json")
     assert list(data) == [
         "schemaVersion", "rootName", "directories", "emptyDirectories", "files", "truncated",
@@ -33,11 +33,11 @@ def test_secrets_and_ignored_folders_never_included(tmp_path):
 def test_empty_folder_and_empty_file_detected(tmp_path):
     result = scan_directory(make_fixture(tmp_path))
     assert "emptyDir" in result.emptyDirectories
-    assert "onlyEmptyChildren" in result.emptyDirectories  # nur leere Unterordner
-    assert "withEmptyFile" not in result.emptyDirectories  # enthält eine (leere) Datei
+    assert "onlyEmptyChildren" in result.emptyDirectories
+    assert "withEmptyFile" not in result.emptyDirectories
     by_path = {f.path: f for f in result.files}
     assert by_path["empty.txt"].isEmpty
-    assert by_path["blank.txt"].isEmpty  # nur Leerzeichen
+    assert by_path["blank.txt"].isEmpty
     assert not by_path["README.md"].isEmpty
 
 
@@ -45,7 +45,7 @@ def test_is_blank_text():
     assert is_blank_text("")
     assert is_blank_text(" \t\r\n\f\v")
     assert not is_blank_text(" a ")
-    assert not is_blank_text(" ")  # geschütztes Leerzeichen zählt nicht (wie im Browser-Code)
+    assert not is_blank_text(" ")
 
 
 def test_empty_root(tmp_path):
@@ -137,11 +137,11 @@ def test_depth_limit(tmp_path):
     assert "a/b" not in result.emptyDirectories
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Symlinks brauchen unter Windows Rechte")
+@pytest.mark.skipif(sys.platform == "win32", reason="symlinks need extra rights on Windows")
 def test_symlinks_are_not_followed(tmp_path):
     outside = tmp_path / "outside"
     outside.mkdir()
-    (outside / "secret.txt").write_text("geheim")
+    (outside / "secret.txt").write_text("secret")
     root = tmp_path / "r"
     root.mkdir()
     (root / "real.txt").write_text("ok")

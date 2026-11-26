@@ -1,13 +1,4 @@
-"""Liest einen Ordner auf der Festplatte in das Scan-Format.
-
-Sicherheit: Dateien werden nur als Bytes gelesen und als Text gespeichert.
-Es wird nichts importiert, ausgeführt oder installiert. Symlinks werden nicht
-verfolgt, damit ein fremdes Repo nicht auf Dateien außerhalb zeigen kann.
-
-Die Reihenfolge ist fest (Einträge nach Namen sortiert, Tiefensuche), damit
-Browser und Backend bei Limits dieselben Dateien behalten.
-"""
-
+# Reads a folder on disk into the scan format.
 from __future__ import annotations
 
 import os
@@ -29,11 +20,10 @@ DEFAULT_LIMITS = ScanLimits()
 
 
 def decode_text(data: bytes) -> str | None:
-    """Text oder None, wenn es eine Binärdatei ist (NUL-Byte oder kein UTF-8)."""
     if b"\x00" in data[:8000]:
         return None
     try:
-        return data.decode("utf-8")  # BOM bleibt erhalten, Zeilenenden unverändert
+        return data.decode("utf-8")
     except UnicodeDecodeError:
         return None
 
@@ -55,7 +45,6 @@ def scan_directory(
             return []
 
     def walk(directory: Path, rel: str, depth: int) -> bool:
-        """Liefert True, wenn in diesem Ordner (rekursiv) mindestens eine Datei liegt."""
         has_file = False
         for entry in list_entries(directory):
             if state["stop"]:
@@ -68,7 +57,7 @@ def scan_directory(
                     continue
                 if depth + 1 > limits.max_depth:
                     state["truncated"] = True
-                    has_file = True  # Inhalt unbekannt, also nicht "leer" behaupten
+                    has_file = True
                     continue
                 directories.append(child_rel)
                 if walk(Path(entry.path), child_rel, depth + 1):
@@ -87,7 +76,7 @@ def scan_directory(
                     size = entry.stat(follow_symlinks=False).st_size
                     files.append(_build(child_rel, size, Path(entry.path), limits))
                 except OSError:
-                    continue  # nicht lesbar: überspringen
+                    continue
         return has_file
 
     walk(root, "", 0)

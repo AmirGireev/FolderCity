@@ -1,5 +1,4 @@
-"""Prüft, dass Pydantic-Modell und JSON-Schema denselben Vertrag beschreiben."""
-
+# Checks that the CityModel schema and Pydantic model match.
 import copy
 import json
 from pathlib import Path
@@ -51,7 +50,6 @@ def test_required_fields_match_schema():
     def required(model):
         return {name for name, f in model.model_fields.items() if f.is_required()}
 
-    # parentId ist in Pydantic Optional, aber Pflicht (darf null sein) – wie im Schema.
     assert required(Node) == set(SCHEMA["$defs"]["Node"]["required"])
     assert required(ArchitectureNode) == set(SCHEMA["$defs"]["ArchitectureNode"]["required"])
 
@@ -59,12 +57,12 @@ def test_required_fields_match_schema():
 @pytest.mark.parametrize(
     "mutate",
     [
-        lambda d: d["nodes"][0].update(type="building"),            # unbekannter Typ
-        lambda d: d["nodes"][0]["dimensions"].update(width=-1),    # negative Breite
-        lambda d: d["architecture"][0].update(kind="queue"),       # unbekannte Ebene
-        lambda d: d["architecture"][0].update(line=0),             # Zeile < 1
-        lambda d: d.update(unexpected=True),                       # unbekanntes Feld
-        lambda d: d["nodes"][1].pop("dimensions"),                 # Pflichtfeld fehlt
+        lambda d: d["nodes"][0].update(type="building"),
+        lambda d: d["nodes"][0]["dimensions"].update(width=-1),
+        lambda d: d["architecture"][0].update(kind="queue"),
+        lambda d: d["architecture"][0].update(line=0),
+        lambda d: d.update(unexpected=True),
+        lambda d: d["nodes"][1].pop("dimensions"),
     ],
 )
 def test_invalid_data_rejected_by_both(mutate):

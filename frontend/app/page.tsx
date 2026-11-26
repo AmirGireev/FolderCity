@@ -1,3 +1,4 @@
+// The start page.
 import { BackendStatus } from "./BackendStatus";
 import { ImportPanel } from "./ImportPanel";
 

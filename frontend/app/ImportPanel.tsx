@@ -1,3 +1,4 @@
+// The area for scanning folders and GitHub repos.
 "use client";
 
 import { useEffect, useState, type DragEvent } from "react";
@@ -14,7 +15,7 @@ import type { ScanResult } from "../src/types/scan";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const PREVIEW_CHARS = 20_000;
 
-// <input webkitdirectory> ist kein Standard-Attribut und fehlt in den React-Typen.
+
 const directoryInputProps = { webkitdirectory: "", directory: "" } as Record<string, string>;
 
 export function ImportPanel() {
@@ -52,14 +53,14 @@ export function ImportPanel() {
   function onPick() {
     void run("Ordner-Auswahl", async () => {
       const dir = await pickDirectory();
-      return dir ? scanTree(dir) : null; // null = Dialog abgebrochen
+      return dir ? scanTree(dir) : null;
     });
   }
 
   function onDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setDragging(false);
-    // Muss synchron passieren: Nach dem Ereignis sind die Einträge nicht mehr abrufbar.
+
     const dir = directoryFromDrop(event.dataTransfer.items);
     void run("Drag-and-drop", () => scanDirectory(dir, "Bitte genau einen Ordner ablegen (keine einzelnen Dateien)."));
   }

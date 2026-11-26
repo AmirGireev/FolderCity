@@ -1,3 +1,4 @@
+# Exports the CityModel classes.
 from .city_model import (
     ArchitectureNode,
     CityModel,

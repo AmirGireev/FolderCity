@@ -1,14 +1,4 @@
-/**
- * Macht aus einem (echten oder simulierten) Ordnerbaum das Scan-Format.
- *
- * Alle drei Browser-Wege (Ordner-Auswahl in Chromium, Drag-and-drop, Notlösung
- * <input webkitdirectory>) werden zuerst in diesen einfachen Baum übersetzt
- * (siehe adapters.ts). Dadurch gelten Filter, Limits und Leer-Erkennung überall
- * gleich – und gleich wie im Backend (backend/app/scan/walker.py).
- *
- * Sicherheit: Dateien werden nur als Bytes gelesen und als Text gespeichert.
- */
-
+// Turns a folder tree into the scan format.
 import {
   DEFAULT_LIMITS,
   type ScanLimits,
@@ -34,12 +24,12 @@ export interface FsDirectory {
 
 export type FsNode = FsFile | FsDirectory;
 
-/** Text oder null, wenn es eine Binärdatei ist (NUL-Byte oder kein UTF-8). */
+
 export function decodeText(data: Uint8Array): string | null {
   const head = data.length > 8000 ? data.subarray(0, 8000) : data;
   if (head.includes(0)) return null;
   try {
-    // ignoreBOM: Das BOM bleibt im Text erhalten (wie im Backend).
+
     return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(data);
   } catch {
     return null;
@@ -79,14 +69,14 @@ export async function scanTree(
   let truncated = false;
   let stop = false;
 
-  /** Liefert true, wenn in diesem Ordner (rekursiv) mindestens eine Datei liegt. */
+
   async function walk(dir: FsDirectory, rel: string, depth: number): Promise<boolean> {
     let hasFile = false;
     let entries: FsNode[];
     try {
       entries = [...(await dir.list())].sort(byName);
     } catch {
-      return false; // nicht lesbar: wie leer behandeln (wie im Backend)
+      return false;
     }
     for (const entry of entries) {
       if (stop) break;
@@ -95,7 +85,7 @@ export async function scanTree(
         if (shouldSkipDirectory(entry.name)) continue;
         if (depth + 1 > limits.maxDepth) {
           truncated = true;
-          hasFile = true; // Inhalt unbekannt, also nicht "leer" behaupten
+          hasFile = true;
           continue;
         }
         directories.push(childRel);
@@ -112,7 +102,7 @@ export async function scanTree(
         try {
           files.push(await buildFile(childRel, entry, limits));
         } catch {
-          continue; // nicht lesbar: überspringen
+          continue;
         }
       }
     }

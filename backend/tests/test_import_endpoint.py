@@ -1,3 +1,4 @@
+# Tests the POST /import/github endpoint.
 from fastapi.testclient import TestClient
 
 from app import main
@@ -30,9 +31,9 @@ def test_success_returns_scan_format(monkeypatch):
 
 def test_clone_errors_are_passed_on(monkeypatch):
     def fail(url):
-        raise GithubImportError(502, "nicht gefunden")
+        raise GithubImportError(502, "not found")
 
     monkeypatch.setattr(main, "import_github", fail)
     response = client.post("/import/github", json={"url": "https://github.com/a/repo"})
     assert response.status_code == 502
-    assert response.json() == {"detail": "nicht gefunden"}
+    assert response.json() == {"detail": "not found"}

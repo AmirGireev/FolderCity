@@ -1,3 +1,4 @@
+# The FastAPI app with /health and the GitHub import.
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -26,7 +27,6 @@ class GithubImportRequest(BaseModel):
 
 @app.post("/import/github", response_model=ScanResult)
 def import_from_github(request: GithubImportRequest) -> ScanResult:
-    """Öffentliches GitHub-Repo einlesen. Liefert dasselbe Format wie der lokale Ordner."""
     try:
         return import_github(request.url)
     except GithubImportError as err:

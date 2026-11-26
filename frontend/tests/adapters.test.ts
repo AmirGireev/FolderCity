@@ -1,3 +1,4 @@
+// Tests the three browser ways to get a folder.
 import { describe, expect, it } from "vitest";
 import {
   directoryFromDrop,
@@ -11,45 +12,45 @@ import {
 import { scanTree } from "../src/scan/scanTree";
 import { EXPECTED, FIXTURE, fakeEntry, fakeFileList, fakeHandle } from "./fakes";
 
-describe("Chromium: Ordner-Auswahl (showDirectoryPicker)", () => {
-  it("liefert dasselbe JSON wie der Testbaum", async () => {
+describe("Chromium: folder picker (showDirectoryPicker)", () => {
+  it("gives the same JSON as the test tree", async () => {
     const result = await scanTree(fromDirectoryHandle(fakeHandle(FIXTURE.name, FIXTURE.tree)));
     expect(result).toEqual(EXPECTED);
   });
 
-  it("pickDirectory: Abbruch im Dialog gibt null zurück", async () => {
+  it("pickDirectory: cancelling the dialog returns null", async () => {
     const win = {
       showDirectoryPicker: async () => {
-        throw new DOMException("abgebrochen", "AbortError");
+        throw new DOMException("cancelled", "AbortError");
       },
     } as unknown as Window;
     expect(await pickDirectory(win)).toBeNull();
   });
 
-  it("pickDirectory: andere Fehler werden weitergegeben", async () => {
+  it("pickDirectory: other errors are passed on", async () => {
     const win = {
       showDirectoryPicker: async () => {
-        throw new DOMException("verboten", "SecurityError");
+        throw new DOMException("forbidden", "SecurityError");
       },
     } as unknown as Window;
-    await expect(pickDirectory(win)).rejects.toThrow("verboten");
+    await expect(pickDirectory(win)).rejects.toThrow("forbidden");
   });
 
-  it("supportsDirectoryPicker erkennt fehlende Unterstützung (Firefox/Safari)", () => {
+  it("supportsDirectoryPicker detects missing support (Firefox/Safari)", () => {
     expect(supportsDirectoryPicker({} as Window)).toBe(false);
     expect(supportsDirectoryPicker({ showDirectoryPicker: () => {} } as unknown as Window)).toBe(true);
   });
 });
 
-describe("Firefox/Safari: Drag-and-drop (webkitGetAsEntry)", () => {
+describe("Firefox/Safari: drag-and-drop (webkitGetAsEntry)", () => {
   for (const chunk of [1, 2, 3, 100]) {
-    it(`liefert dasselbe JSON, auch wenn readEntries nur ${chunk} Einträge pro Aufruf gibt`, async () => {
+    it(`gives the same JSON even if readEntries returns only ${chunk} entries per call`, async () => {
       const root = fakeEntry(FIXTURE.name, FIXTURE.tree, chunk) as FileSystemDirectoryEntry;
       expect(await scanTree(fromDirectoryEntry(root))).toEqual(EXPECTED);
     });
   }
 
-  it("readEntries wird wiederholt, bis ein leeres Array kommt", async () => {
+  it("readEntries is repeated until an empty array comes back", async () => {
     let calls = 0;
     const children = [1, 2, 3, 4, 5].map((n) => fakeEntry(`f${n}.txt`, "x", 1));
     const dir = fakeEntry("d", {}, 1) as unknown as FileSystemDirectoryEntry;
@@ -64,10 +65,10 @@ describe("Firefox/Safari: Drag-and-drop (webkitGetAsEntry)", () => {
     })) as unknown as typeof dir.createReader;
     const entries = await readAllEntries(dir);
     expect(entries).toHaveLength(5);
-    expect(calls).toBe(4); // 2 + 2 + 1 + leeres Array
+    expect(calls).toBe(4);
   });
 
-  it("leerer Ordner bleibt erhalten", async () => {
+  it("an empty folder is kept", async () => {
     const root = fakeEntry("r", { leer: {}, "a.txt": "a" }, 1) as FileSystemDirectoryEntry;
     const result = await scanTree(fromDirectoryEntry(root));
     expect(result.directories).toEqual(["leer"]);
@@ -77,12 +78,12 @@ describe("Firefox/Safari: Drag-and-drop (webkitGetAsEntry)", () => {
   const items = (entries: (FileSystemEntry | null)[]) =>
     entries.map((e) => ({ kind: "file", webkitGetAsEntry: () => e })) as unknown as DataTransferItemList;
 
-  it("directoryFromDrop nimmt genau einen Ordner", () => {
+  it("directoryFromDrop accepts exactly one folder", () => {
     const folder = fakeEntry("r", {}, 1);
     expect(directoryFromDrop(items([folder]))?.name).toBe("r");
   });
 
-  it("directoryFromDrop lehnt Datei, mehrere Einträge und nichts ab", () => {
+  it("directoryFromDrop rejects a file, several entries and nothing", () => {
     const folder = fakeEntry("r", {}, 1);
     const file = fakeEntry("a.txt", "a", 1);
     expect(directoryFromDrop(items([file]))).toBeNull();
@@ -92,17 +93,17 @@ describe("Firefox/Safari: Drag-and-drop (webkitGetAsEntry)", () => {
   });
 });
 
-describe("Notlösung: <input webkitdirectory>", () => {
-  it("liefert dieselben Dateien, aber keine leeren Ordner", async () => {
+describe("Fallback: <input webkitdirectory>", () => {
+  it("gives the same files but no empty folders", async () => {
     const root = fromFileList(fakeFileList(FIXTURE.name, FIXTURE.tree));
     expect(root?.name).toBe(FIXTURE.name);
     const result = await scanTree(root!);
     expect(result.files).toEqual(EXPECTED.files);
-    expect(result.directories).not.toContain("emptyDir"); // leere Ordner gehen verloren
+    expect(result.directories).not.toContain("emptyDir");
     expect(result.directories.every((d: string) => EXPECTED.directories.includes(d))).toBe(true);
   });
 
-  it("ohne Ordner (nur einzelne Dateien) gibt es null", () => {
+  it("without a folder (only single files) gives null", () => {
     expect(fromFileList([new File(["x"], "a.txt")])).toBeNull();
     expect(fromFileList([])).toBeNull();
   });

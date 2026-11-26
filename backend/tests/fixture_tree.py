@@ -1,5 +1,4 @@
-"""Baut aus schema/examples/scan-fixture.json einen echten Ordner auf der Festplatte."""
-
+# Builds a real folder from the shared test tree.
 import json
 from pathlib import Path
 

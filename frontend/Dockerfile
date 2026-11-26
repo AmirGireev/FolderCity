@@ -1,3 +1,4 @@
+# Builds the frontend image (Next.js) in several stages.
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./

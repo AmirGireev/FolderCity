@@ -1,16 +1,7 @@
-/**
- * Übersetzt die drei Browser-Wege in den einfachen Baum aus scanTree.ts.
- *
- * 1. Chromium: window.showDirectoryPicker() (File System Access API)
- * 2. Firefox/Safari: Ordner per Drag-and-drop, gelesen über webkitGetAsEntry().
- *    readEntries liefert die Einträge in Portionen und wird so lange wiederholt,
- *    bis ein leeres Array zurückkommt. Dieser Weg behält leere Ordner.
- * 3. Notlösung: <input webkitdirectory>. Liefert keine leeren Ordner.
- */
-
+// Turns folder picker, drag-and-drop and the fallback input into a folder tree.
 import type { FsDirectory, FsFile, FsNode } from "./scanTree";
 
-/** Datei-Knoten aus einem Browser-File. Der Inhalt wird erst bei read() geladen. */
+
 function fileNode(name: string, file: File): FsFile {
   return {
     kind: "file",
@@ -20,7 +11,6 @@ function fileNode(name: string, file: File): FsFile {
   };
 }
 
-// ---------------------------------------------------------------- 1. Ordner-Auswahl
 
 type PickerWindow = Window & {
   showDirectoryPicker?: (options?: { mode?: "read" }) => Promise<FileSystemDirectoryHandle>;
@@ -49,7 +39,7 @@ export function fromDirectoryHandle(handle: FileSystemDirectoryHandle): FsDirect
   };
 }
 
-/** Öffnet den Ordner-Dialog. Gibt null zurück, wenn der Nutzer abbricht. */
+
 export async function pickDirectory(win: Window = window): Promise<FsDirectory | null> {
   const picker = (win as PickerWindow).showDirectoryPicker;
   if (!picker) throw new Error("Dieser Browser kann keinen Ordner direkt auswählen.");
@@ -61,9 +51,7 @@ export async function pickDirectory(win: Window = window): Promise<FsDirectory |
   }
 }
 
-// ---------------------------------------------------------------- 2. Drag-and-drop
 
-/** Liest alle Einträge eines Ordners: readEntries so lange aufrufen, bis [] kommt. */
 export function readAllEntries(dir: FileSystemDirectoryEntry): Promise<FileSystemEntry[]> {
   const reader = dir.createReader();
   return new Promise((resolve, reject) => {
@@ -99,11 +87,7 @@ export function fromDirectoryEntry(dir: FileSystemDirectoryEntry): FsDirectory {
   };
 }
 
-/**
- * Ordner aus einem Drop. Muss synchron im drop-Ereignis aufgerufen werden
- * (danach sind die Einträge im Browser nicht mehr abrufbar).
- * Gibt null zurück, wenn nicht genau ein Ordner abgelegt wurde.
- */
+
 export function directoryFromDrop(items: DataTransferItemList): FsDirectory | null {
   const entries: FileSystemEntry[] = [];
   for (let i = 0; i < items.length; i++) {
@@ -116,17 +100,16 @@ export function directoryFromDrop(items: DataTransferItemList): FsDirectory | nu
   return fromDirectoryEntry(entries[0] as FileSystemDirectoryEntry);
 }
 
-// ---------------------------------------------------------------- 3. Notlösung
 
 type MutableDir = { name: string; dirs: Map<string, MutableDir>; files: FsFile[] };
 
-/** Baut aus <input webkitdirectory> einen Baum. Leere Ordner gehen dabei verloren. */
+
 export function fromFileList(files: ArrayLike<File>): FsDirectory | null {
   let root: MutableDir | null = null;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const parts = (file.webkitRelativePath || file.name).split("/");
-    if (parts.length < 2) return null; // kein Ordner
+    if (parts.length < 2) return null;
     root ??= { name: parts[0], dirs: new Map(), files: [] };
     let current = root;
     for (const part of parts.slice(1, -1)) {

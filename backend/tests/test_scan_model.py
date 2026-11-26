@@ -1,3 +1,4 @@
+# Checks that the scan schema and Pydantic model match.
 import copy
 
 import pytest

@@ -1,5 +1,4 @@
-
-
+# The CityModel (city data contract) as a Pydantic model.
 from __future__ import annotations
 
 from typing import Literal, Optional, Union

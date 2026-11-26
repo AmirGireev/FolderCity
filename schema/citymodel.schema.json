@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://foldercity.dev/schema/citymodel.schema.json",
   "title": "CityModel",
-  "description": "Vertrag zwischen Backend und Frontend: eine Code-Basis als Stadt. Auch das Format der vorberechneten Demos.",
+  "description": "Contract between backend and frontend: a code base as a city. Also the format of the precomputed demos.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "rootId", "nodes", "edges", "architecture"],
@@ -10,7 +10,7 @@
     "schemaVersion": { "const": "1.0" },
     "source": {
       "type": "object",
-      "description": "Woher die Daten stammen (lokaler Ordner oder GitHub-Repo).",
+      "description": "Where the data comes from (local folder or GitHub repo).",
       "additionalProperties": false,
       "required": ["kind", "name"],
       "properties": {
@@ -20,7 +20,7 @@
         "hash": { "type": "string" }
       }
     },
-    "rootId": { "type": "string", "description": "id des Wurzel-Ordners in nodes." },
+    "rootId": { "type": "string", "description": "id of the root folder in nodes." },
     "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
     "edges": { "type": "array", "items": { "$ref": "#/$defs/ImportEdge" } },
     "architecture": { "type": "array", "items": { "$ref": "#/$defs/ArchitectureNode" } }
@@ -35,7 +35,7 @@
       "required": ["x", "y", "z"],
       "properties": {
         "x": { "type": "number" },
-        "y": { "type": "number", "description": "Höhe der Grundfläche (Verschachtelungsebene)." },
+        "y": { "type": "number", "description": "Height of the base (nesting level)." },
         "z": { "type": "number" }
       }
     },
@@ -52,7 +52,7 @@
     },
     "Metrics": {
       "type": "object",
-      "description": "Deterministische Messwerte. Weitere numerische Metriken sind erlaubt.",
+      "description": "Deterministic measurements. More numeric metrics are allowed.",
       "properties": {
         "sizeBytes": { "type": "integer", "minimum": 0 },
         "lines": { "type": "integer", "minimum": 0 },
@@ -68,7 +68,7 @@
       "required": ["id", "path", "name", "type", "parentId", "dimensions", "metrics"],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
-        "path": { "type": "string", "description": "Pfad relativ zur Wurzel, mit '/' getrennt. Wurzel = ''." },
+        "path": { "type": "string", "description": "Path relative to the root, separated by '/'. Root = ''." },
         "name": { "type": "string" },
         "type": { "$ref": "#/$defs/NodeType" },
         "parentId": { "type": ["string", "null"] },
@@ -81,8 +81,8 @@
       "additionalProperties": false,
       "required": ["source", "target"],
       "properties": {
-        "source": { "type": "string", "description": "id der importierenden Datei." },
-        "target": { "type": "string", "description": "id der importierten Datei." },
+        "source": { "type": "string", "description": "id of the importing file." },
+        "target": { "type": "string", "description": "id of the imported file." },
         "line": { "type": "integer", "minimum": 1 }
       }
     },
@@ -97,7 +97,7 @@
         "id": { "type": "string", "minLength": 1 },
         "kind": { "$ref": "#/$defs/ArchitectureKind" },
         "label": { "type": "string" },
-        "fileId": { "type": "string", "description": "id der Datei (Node), in der das Element gefunden wurde." },
+        "fileId": { "type": "string", "description": "id of the file (node) where the element was found." },
         "line": { "type": "integer", "minimum": 1 }
       }
     }

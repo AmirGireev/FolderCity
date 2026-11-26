@@ -1,2 +1,2 @@
--- pgvector für spätere Embeddings (Schritt 8) aktivieren
+-- Enables the vector extension for the later AI search.
 CREATE EXTENSION IF NOT EXISTS vector;

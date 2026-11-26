@@ -1,5 +1,4 @@
-/** Hilfen für Tests: Testbaum aus schema/examples/scan-fixture.json und simulierte Browser-Objekte. */
-
+// Test helpers: the test tree and simulated browser folders.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { FsDirectory, FsNode } from "../src/scan/scanTree";
@@ -27,7 +26,6 @@ export function bytesOf(value: string | { $bytes: number[] }): Uint8Array {
   return isBytes(value) ? Uint8Array.from(value.$bytes) : new TextEncoder().encode(value);
 }
 
-// ------------------------------------------------ direkt als FsDirectory
 
 export function memoryDir(name: string, tree: Tree): FsDirectory {
   return {
@@ -45,7 +43,6 @@ export function memoryDir(name: string, tree: Tree): FsDirectory {
   };
 }
 
-// ------------------------------------------------ simuliertes webkitGetAsEntry
 
 export function fakeEntry(name: string, value: Tree | string | { $bytes: number[] }, chunk: number): FileSystemEntry {
   if (typeof value === "string" || isBytes(value)) {
@@ -65,7 +62,7 @@ export function fakeEntry(name: string, value: Tree | string | { $bytes: number[
     createReader() {
       let position = 0;
       return {
-        // Wie im echten Browser: Portionen, am Ende ein leeres Array.
+
         readEntries(ok: (e: FileSystemEntry[]) => void) {
           const batch = children.slice(position, position + chunk);
           position += chunk;
@@ -76,7 +73,6 @@ export function fakeEntry(name: string, value: Tree | string | { $bytes: number[
   } as unknown as FileSystemDirectoryEntry;
 }
 
-// ------------------------------------------------ simuliertes showDirectoryPicker
 
 export function fakeHandle(name: string, tree: Tree): FileSystemDirectoryHandle {
   return {
@@ -99,7 +95,6 @@ export function fakeHandle(name: string, tree: Tree): FileSystemDirectoryHandle 
   } as unknown as FileSystemDirectoryHandle;
 }
 
-// ------------------------------------------------ simuliertes <input webkitdirectory>
 
 export function fakeFileList(rootName: string, tree: Tree, prefix = rootName): File[] {
   const files: File[] = [];

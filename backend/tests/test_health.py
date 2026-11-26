@@ -1,3 +1,4 @@
+# Checks that /health responds.
 from fastapi.testclient import TestClient
 
 from app.main import app

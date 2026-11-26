@@ -1,9 +1,10 @@
+// Tests the counts for the display.
 import { expect, it } from "vitest";
 import { summarize } from "../src/scan/summary";
 import type { ScanResult } from "../src/types/scan";
 import { EXPECTED } from "./fakes";
 
-it("zählt Ordner, Dateien, leere und ohne Inhalt", () => {
+it("counts folders, files, empty ones and ones without content", () => {
   expect(summarize(EXPECTED as ScanResult)).toEqual({
     folders: 10,
     emptyFolders: 7,

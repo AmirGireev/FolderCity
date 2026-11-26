@@ -1,3 +1,4 @@
+# Tests the GitHub import, including URL checks and limits.
 import os
 import subprocess
 import sys
@@ -24,14 +25,14 @@ GOOD = [
 ]
 
 BAD = [
-    "http://github.com/octocat/Hello-World",  # kein https
-    "https://gitlab.com/octocat/Hello-World",  # anderer Anbieter
+    "http://github.com/octocat/Hello-World",
+    "https://gitlab.com/octocat/Hello-World",
     "https://github.com.evil.com/octocat/Hello-World",
     "https://evil.com/github.com/octocat/Hello-World",
-    "https://user:pw@github.com/octocat/Hello-World",  # Zugangsdaten
-    "https://github.com:8080/octocat/Hello-World",  # Port
-    "https://github.com/octocat",  # kein Repo
-    "https://github.com/octocat/Hello-World/tree/main",  # Zusatzpfad
+    "https://user:pw@github.com/octocat/Hello-World",
+    "https://github.com:8080/octocat/Hello-World",
+    "https://github.com/octocat",
+    "https://github.com/octocat/Hello-World/tree/main",
     "https://github.com/octocat/Hello-World?x=1",
     "https://github.com/octocat/Hello-World#frag",
     "https://github.com/../etc",
@@ -60,7 +61,7 @@ def test_invalid_urls_rejected(url):
 
 def test_import_github_does_not_clone_invalid_urls(monkeypatch):
     def boom(*a, **k):
-        raise AssertionError("darf nicht geklont werden")
+        raise AssertionError("must not be cloned")
 
     monkeypatch.setattr(github, "shallow_clone", boom)
     with pytest.raises(GithubImportError):
@@ -78,7 +79,6 @@ def _git(cwd: Path, *args: str) -> None:
 
 @pytest.fixture
 def source_repo(tmp_path) -> Path:
-    """Ein kleines lokales Repo (statt GitHub) mit Dingen, die gefiltert werden müssen."""
     repo = tmp_path / "demo"
     (repo / "src").mkdir(parents=True)
     (repo / "node_modules").mkdir()
@@ -89,13 +89,13 @@ def source_repo(tmp_path) -> Path:
     (repo / "node_modules" / "x.js").write_text("x")
     (repo / ".env").write_text("SECRET=1")
     _git(repo, "init", "-q", "-b", "main")
-    _git(repo, "add", "-f", ".")  # .env und node_modules absichtlich mit einchecken
+    _git(repo, "add", "-f", ".")
     _git(repo, "commit", "-q", "-m", "init")
     return repo
 
 
 def test_clone_gives_same_result_as_local_folder(source_repo):
-    local = scan_directory(source_repo)  # ignoriert .git, node_modules, .env
+    local = scan_directory(source_repo)
     cloned = import_repository(str(source_repo), "demo")
     assert cloned.model_dump(mode="json") == local.model_dump(mode="json")
     paths = {f.path for f in cloned.files}
@@ -128,9 +128,8 @@ def test_temp_directory_deleted_on_failure(tmp_path, monkeypatch):
     assert created and not any(Path(p).exists() for p in created)
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Shell-Hook braucht ein Unix-System")
+@pytest.mark.skipif(sys.platform == "win32", reason="shell hook needs a Unix system")
 def test_hooks_are_not_run(source_repo, tmp_path):
-    """Ein Repo-Hook darf beim Klonen nicht laufen."""
     marker = tmp_path / "hook-ran"
     hook = source_repo / ".git" / "hooks" / "post-checkout"
     hook.write_text(f"#!/bin/sh\ntouch {marker}\n")
@@ -143,7 +142,6 @@ _REAL_POPEN = subprocess.Popen
 
 
 class _Sleeper:
-    """Ersatz für git: läuft endlos und legt optional eine große Datei an."""
 
     def __init__(self, cmd, **kwargs):
         self.target = Path(cmd[-1])
@@ -198,7 +196,7 @@ def test_git_runs_without_shell_and_with_safe_options(tmp_path, monkeypatch):
     assert isinstance(cmd, list) and not kwargs.get("shell")
     for flag in ("--depth", "--no-recurse-submodules", "--single-branch"):
         assert flag in cmd
-    assert cmd[cmd.index("--") + 1] == "https://github.com/a/b.git"  # URL steht nach "--"
+    assert cmd[cmd.index("--") + 1] == "https://github.com/a/b.git"
     assert any(part.startswith("core.hooksPath=") for part in cmd)
     assert kwargs["env"]["GIT_TERMINAL_PROMPT"] == "0"
     assert kwargs["env"]["GIT_CONFIG_NOSYSTEM"] == "1"
