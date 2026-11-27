@@ -173,17 +173,20 @@ describe("layers and selection of architecture elements", () => {
     useCityStore.getState().setCity(null);
   });
 
-  it("enables the layers that have data and keeps the others for later", () => {
-    const available = (key: string) => LAYER_DEFINITIONS.find((l) => l.key === key)!.isAvailable(city);
-    expect(available("apiGates")).toBe(true);
-    expect(available("databases")).toBe(true);
-    expect(available("externalServices")).toBe(true);
-    expect(available("servers")).toBe(true);
-    expect(available("dataPaths")).toBe(true);
-    expect(available("complexity")).toBe(false);
-    expect(available("errors")).toBe(false);
+  it("enables all architecture layers and reports whether they found something", () => {
+    const definition = (key: string) => LAYER_DEFINITIONS.find((l) => l.key === key)!;
+    for (const key of ["apiGates", "databases", "externalServices", "servers", "dataPaths"]) {
+      expect(definition(key).isAvailable(city)).toBe(true);
+      expect(definition(key).isAvailable(null)).toBe(true);
+      expect(definition(key).hasData!(city)).toBe(true);
+    }
+    expect(definition("complexity").isAvailable(city)).toBe(false);
+    expect(definition("errors").isAvailable(city)).toBe(false);
+    const empty = { ...city, architecture: [] };
+    expect(definition("apiGates").isAvailable(empty)).toBe(true);
+    expect(definition("apiGates").hasData!(empty)).toBe(false);
     const noDb = { ...city, architecture: architecture.filter((a) => a.kind !== "database") };
-    expect(LAYER_DEFINITIONS.find((l) => l.key === "dataPaths")!.isAvailable(noDb)).toBe(false);
+    expect(definition("dataPaths").hasData!(noDb)).toBe(false);
   });
 
   it("starts with every architecture layer off", () => {

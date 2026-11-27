@@ -1,4 +1,4 @@
-// Defines the layer switches and tells which ones have data yet.
+// Defines the layer switches and tells which ones can be used and which ones found something.
 import type { ArchitectureKind, CityModel } from "../types/cityModel";
 
 export const LAYER_KEYS = [
@@ -21,27 +21,32 @@ export interface LayerDefinition {
   label: string;
   defaultOn: boolean;
   isAvailable: (city: CityModel | null) => boolean;
+  hasData?: (city: CityModel | null) => boolean;
 }
 
 const hasArchitecture = (kind: ArchitectureKind) => (city: CityModel | null) =>
   city?.architecture.some((item) => item.kind === kind) ?? false;
 
+const always = () => true;
+const never = () => false;
+
 export const LAYER_DEFINITIONS: readonly LayerDefinition[] = [
-  { key: "emptyFiles", label: "Empty files", defaultOn: true, isAvailable: () => true },
-  { key: "emptyFolders", label: "Empty folders", defaultOn: true, isAvailable: () => true },
-  { key: "mergeFolders", label: "Merge far folders into blocks", defaultOn: true, isAvailable: () => true },
-  { key: "apiGates", label: "API gates", defaultOn: false, isAvailable: hasArchitecture("api") },
-  { key: "databases", label: "Databases", defaultOn: false, isAvailable: hasArchitecture("database") },
-  { key: "externalServices", label: "External services", defaultOn: false, isAvailable: hasArchitecture("external") },
-  { key: "servers", label: "Servers and containers", defaultOn: false, isAvailable: hasArchitecture("server") },
+  { key: "emptyFiles", label: "Empty files", defaultOn: true, isAvailable: always },
+  { key: "emptyFolders", label: "Empty folders", defaultOn: true, isAvailable: always },
+  { key: "mergeFolders", label: "Merge far folders into blocks", defaultOn: true, isAvailable: always },
+  { key: "apiGates", label: "API gates", defaultOn: false, isAvailable: always, hasData: hasArchitecture("api") },
+  { key: "databases", label: "Databases", defaultOn: false, isAvailable: always, hasData: hasArchitecture("database") },
+  { key: "externalServices", label: "External services", defaultOn: false, isAvailable: always, hasData: hasArchitecture("external") },
+  { key: "servers", label: "Servers and containers", defaultOn: false, isAvailable: always, hasData: hasArchitecture("server") },
   {
     key: "dataPaths",
     label: "Data paths (presumed)",
     defaultOn: false,
-    isAvailable: (city) => hasArchitecture("api")(city) && hasArchitecture("database")(city),
+    isAvailable: always,
+    hasData: (city) => hasArchitecture("api")(city) && hasArchitecture("database")(city),
   },
-  { key: "complexity", label: "Complexity", defaultOn: false, isAvailable: () => false },
-  { key: "errors", label: "Errors", defaultOn: false, isAvailable: () => false },
+  { key: "complexity", label: "Complexity", defaultOn: false, isAvailable: never },
+  { key: "errors", label: "Errors", defaultOn: false, isAvailable: never },
 ];
 
 export function defaultLayers(): Layers {

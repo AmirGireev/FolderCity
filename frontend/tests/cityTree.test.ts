@@ -49,16 +49,25 @@ describe("layers", () => {
     expect(LAYER_DEFINITIONS).toHaveLength(10);
   });
 
-  it("marks layers without data as unavailable", () => {
+  it("lets every built layer be turned on, even when nothing was found", () => {
+    const available = (key: string) => LAYER_DEFINITIONS.find((l) => l.key === key)!.isAvailable(null);
+    for (const key of ["emptyFiles", "apiGates", "databases", "externalServices", "servers", "dataPaths"]) {
+      expect(available(key)).toBe(true);
+    }
+  });
+
+  it("keeps layers that are not built yet switched off", () => {
     const available = (key: string) => LAYER_DEFINITIONS.find((l) => l.key === key)!.isAvailable(city);
-    expect(available("emptyFiles")).toBe(true);
-    expect(available("apiGates")).toBe(true);
-    expect(available("databases")).toBe(true);
-    expect(available("dataPaths")).toBe(true);
-    expect(available("externalServices")).toBe(false);
-    expect(available("servers")).toBe(false);
     expect(available("complexity")).toBe(false);
     expect(available("errors")).toBe(false);
-    expect(LAYER_DEFINITIONS.find((l) => l.key === "apiGates")!.isAvailable(null)).toBe(false);
+  });
+
+  it("tells which layers found something", () => {
+    const hasData = (key: string) => LAYER_DEFINITIONS.find((l) => l.key === key)!.hasData!(city);
+    expect(hasData("apiGates")).toBe(true);
+    expect(hasData("databases")).toBe(true);
+    expect(hasData("dataPaths")).toBe(true);
+    expect(hasData("externalServices")).toBe(false);
+    expect(hasData("servers")).toBe(false);
   });
 });

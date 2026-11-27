@@ -1,6 +1,5 @@
 // The start page.
 import { BackendStatus } from "./BackendStatus";
-import { CityView } from "./city/CityView";
 import { ImportPanel } from "./ImportPanel";
 
 export default function Home() {
@@ -12,7 +11,6 @@ export default function Home() {
         <BackendStatus />
         <ImportPanel />
       </main>
-      <CityView />
     </>
   );
 }

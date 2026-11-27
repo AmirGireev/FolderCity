@@ -26,8 +26,7 @@ export function FolderTree() {
   if (!city) return null;
 
   return (
-    <section className="folder-tree" aria-label="Folder tree">
-      <h3>Folders</h3>
+    <div className="folder-tree" aria-label="Folder tree">
       <ul role="tree">
         {rows.map(({ node, level, isFolder, hasChildren, expanded }) => {
           const classes = ["tree-row"];
@@ -67,6 +66,6 @@ export function FolderTree() {
           );
         })}
       </ul>
-    </section>
+    </div>
   );
 }

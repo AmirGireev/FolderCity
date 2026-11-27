@@ -5,7 +5,7 @@ import { basicSetup } from "codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { clampRange, highlightField, languageExtension, languageNameFor, setHighlight } from "../../src/city/codeHighlight";
 import { useCityStore } from "../../src/city/store";
 
@@ -49,7 +49,7 @@ function CodeEditor({ path, content }: { path: string; content: string }) {
   return <div className="code-editor" ref={host} data-testid="code-editor" />;
 }
 
-export function CodeViewer() {
+export function CodeViewer({ height, style }: { height?: number; style?: CSSProperties }) {
   const node = useCityStore((state) => (state.selectedId ? state.nodesById.get(state.selectedId) : undefined));
   const symbols = useCityStore((state) => state.city?.symbols);
   const contents = useCityStore((state) => state.contents);
@@ -65,7 +65,7 @@ export function CodeViewer() {
   const content = contents.get(node.id);
 
   return (
-    <section className="code-viewer" data-testid="code-viewer">
+    <section className="code-viewer" data-testid="code-viewer" style={{ ...style, height }}>
       <header>
         <strong>{node.path}</strong>
         <small>{languageNameFor(node.path)}</small>

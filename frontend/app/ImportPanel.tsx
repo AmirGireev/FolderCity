@@ -1,6 +1,8 @@
 // The area for scanning folders and GitHub repos.
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type DragEvent } from "react";
 import {
   directoryFromDrop,
@@ -21,6 +23,8 @@ const PREVIEW_CHARS = 20_000;
 const directoryInputProps = { webkitdirectory: "", directory: "" } as Record<string, string>;
 
 export function ImportPanel() {
+  const router = useRouter();
+  const hasCity = useCityStore((state) => state.city !== null);
   const [canPick, setCanPick] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -40,6 +44,7 @@ export function ImportPanel() {
         setScan(result);
         setSource(label);
         useCityStore.getState().setCity(await fetchCity(result), new Map(result.files.map((f) => [f.path, f.content])));
+        router.push(`/city${window.location.search}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error.");
@@ -174,6 +179,7 @@ export function ImportPanel() {
               Not everything was scanned: the limit is 600 files (and 50 folder levels).
             </p>
           )}
+          {hasCity && <p><Link href={`/city${typeof window === "undefined" ? "" : window.location.search}`}>Open the city again</Link></p>}
           <button type="button" onClick={download}>
             Download JSON
           </button>
