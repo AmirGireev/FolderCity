@@ -188,3 +188,8 @@ body {
   font-size: 0.75rem;
   white-space: nowrap;
 }
+
+.city-label.cluster {
+  background: rgba(31, 111, 235, 0.75);
+  font-weight: 600;
+}

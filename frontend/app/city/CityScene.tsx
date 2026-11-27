@@ -1,15 +1,17 @@
-// The 3D scene: platforms, buildings, edge lines, shadows, ground grid and labels.
+// The 3D scene: platforms, buildings, collapsed folder blocks, edge lines, shadows, ground grid and labels.
 "use client";
 
 import { Canvas } from "@react-three/fiber";
 import { Grid, Stats } from "@react-three/drei";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { clusterNode, hiddenIds } from "../../src/city/collapse";
 import { colorForExtension, platformColor } from "../../src/city/colors";
 import { EMPTY_FOLDER_PLATE_HEIGHT } from "../../src/city/geometry";
 import { useCityStore } from "../../src/city/store";
 import type { CityNode } from "../../src/types/cityModel";
 import { BoxEdges } from "./BoxEdges";
 import { CameraRig } from "./CameraRig";
+import { CollapseController } from "./CollapseController";
 import { EmptyFolderOutlines } from "./EmptyFolderOutlines";
 import { InstancedBoxes } from "./InstancedBoxes";
 import { Labels } from "./Labels";
@@ -21,20 +23,41 @@ const emptyFolderColor = () => "#8b949e";
 export default function CityScene({ showStats }: { showStats: boolean }) {
   const city = useCityStore((state) => state.city);
   const layers = useCityStore((state) => state.layers);
+  const collapsedIds = useCityStore((state) => state.collapsedIds);
+  const collapseIndex = useCityStore((state) => state.collapseIndex);
+
+  const frame = useMemo(() => {
+    const root = city?.nodes.find((n) => n.id === city.rootId);
+    const { position, width = 20, depth = 20 } = root?.dimensions ?? {};
+    return {
+      center: [(position?.x ?? 0) + width / 2, 0, (position?.z ?? 0) + depth / 2] as [number, number, number],
+      extent: Math.max(width, depth, 20),
+    };
+  }, [city]);
 
   const scene = useMemo(() => {
-    const nodes = city?.nodes ?? [];
-    const root = nodes.find((n) => n.id === city?.rootId);
-    const { position, width = 20, depth = 20 } = root?.dimensions ?? {};
+    const hidden = collapseIndex ? hiddenIds(collapsedIds, collapseIndex) : new Set<string>();
+    const nodes = (city?.nodes ?? []).filter((n) => !hidden.has(n.id));
+    const clusters = collapseIndex
+      ? nodes.flatMap((n) => {
+          const info = collapsedIds.has(n.id) ? collapseIndex.info.get(n.id) : undefined;
+          return info ? [clusterNode(n, info)] : [];
+        })
+      : [];
     return {
       folders: nodes.filter((n) => n.type === "folder"),
       files: nodes.filter((n) => n.type === "file"),
       emptyFiles: nodes.filter((n) => n.type === "empty_file"),
       emptyFolders: nodes.filter((n) => n.type === "empty_folder"),
-      center: [(position?.x ?? 0) + width / 2, 0, (position?.z ?? 0) + depth / 2] as [number, number, number],
-      extent: Math.max(width, depth, 20),
+      clusters,
+      openFolders: nodes.filter((n) => n.type === "folder" && !collapsedIds.has(n.id)),
     };
-  }, [city]);
+  }, [city, collapsedIds, collapseIndex]);
+
+  const clusterColor = useCallback(
+    (node: CityNode) => colorForExtension(collapseIndex?.info.get(node.id)?.dominantExtension),
+    [collapseIndex],
+  );
 
   if (!city) return null;
 
@@ -47,9 +70,9 @@ export default function CityScene({ showStats }: { showStats: boolean }) {
     >
       <color attach="background" args={["#0d1117"]} />
       <ambientLight intensity={0.7} />
-      <Sun center={scene.center} extent={scene.extent} />
+      <Sun center={frame.center} extent={frame.extent} />
       <Grid
-        position={[scene.center[0], -0.05, scene.center[2]]}
+        position={[frame.center[0], -0.05, frame.center[2]]}
         args={[10, 10]}
         infiniteGrid
         cellSize={5}
@@ -58,14 +81,17 @@ export default function CityScene({ showStats }: { showStats: boolean }) {
         sectionSize={25}
         sectionThickness={1.2}
         sectionColor="#4b5563"
-        fadeDistance={scene.extent * 3}
+        fadeDistance={frame.extent * 3}
         fadeStrength={1.5}
       />
       <CameraRig />
+      <CollapseController />
       <InstancedBoxes nodes={scene.folders} colorOf={platformColor} shadows />
       <InstancedBoxes nodes={scene.files} colorOf={buildingColor} shadows />
       <BoxEdges nodes={scene.folders} color="#9da7b3" opacity={0.45} />
+      <InstancedBoxes nodes={scene.clusters} colorOf={clusterColor} shadows />
       <BoxEdges nodes={scene.files} color="#05070a" opacity={0.55} />
+      <BoxEdges nodes={scene.clusters} color="#05070a" opacity={0.55} />
       {layers.emptyFiles && <InstancedBoxes nodes={scene.emptyFiles} colorOf={buildingColor} opacity={0.35} />}
       {layers.emptyFolders && (
         <>
@@ -78,7 +104,7 @@ export default function CityScene({ showStats }: { showStats: boolean }) {
           <EmptyFolderOutlines nodes={scene.emptyFolders} />
         </>
       )}
-      <Labels folders={scene.folders} />
+      <Labels folders={scene.openFolders} clusters={scene.clusters} />
       {showStats && <Stats />}
     </Canvas>
   );

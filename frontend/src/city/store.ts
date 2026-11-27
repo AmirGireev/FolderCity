@@ -1,6 +1,7 @@
-// The state store: city, selection, hover, tree expansion, layer switches and camera requests.
+// The state store: city, selection, hover, tree expansion, collapsed folders, layer switches and camera requests.
 import { create } from "zustand";
 import type { CityModel, CityNode } from "../types/cityModel";
+import { buildCollapseIndex, type CollapseIndex } from "./collapse";
 import { defaultLayers, type LayerKey, type Layers } from "./layers";
 import { ancestorIds } from "./tree";
 
@@ -18,6 +19,8 @@ interface CityState {
   selectedId: string | null;
   hoverId: string | null;
   expandedIds: ReadonlySet<string>;
+  collapseIndex: CollapseIndex | null;
+  collapsedIds: ReadonlySet<string>;
   layers: Layers;
   cameraRequest: CameraRequest | null;
   setCity: (city: CityModel | null) => void;
@@ -25,6 +28,7 @@ interface CityState {
   selectAndFly: (id: string) => void;
   hover: (id: string | null) => void;
   toggleExpanded: (id: string) => void;
+  setCollapsed: (ids: ReadonlySet<string>) => void;
   setLayer: (layer: LayerKey, on: boolean) => void;
   flyTo: (nodeId: string) => void;
 }
@@ -35,6 +39,8 @@ export const useCityStore = create<CityState>((set, get) => ({
   selectedId: null,
   hoverId: null,
   expandedIds: new Set(),
+  collapseIndex: null,
+  collapsedIds: new Set(),
   layers: defaultLayers(),
   cameraRequest: null,
 
@@ -45,6 +51,8 @@ export const useCityStore = create<CityState>((set, get) => ({
       selectedId: null,
       hoverId: null,
       expandedIds: new Set(city ? [city.rootId] : []),
+      collapseIndex: city ? buildCollapseIndex(city) : null,
+      collapsedIds: new Set(),
       cameraRequest: city
         ? { nodeId: city.rootId, instant: true, seq: (state.cameraRequest?.seq ?? 0) + 1 }
         : null,
@@ -69,6 +77,8 @@ export const useCityStore = create<CityState>((set, get) => ({
       if (!next.delete(id)) next.add(id);
       return { expandedIds: next };
     }),
+
+  setCollapsed: (ids) => set({ collapsedIds: ids }),
 
   setLayer: (layer, on) => set((state) => ({ layers: { ...state.layers, [layer]: on } })),
 
