@@ -40,13 +40,13 @@ describe("folder tree", () => {
 });
 
 describe("layers", () => {
-  it("starts with the simple city: only empty files and folders are on", () => {
+  it("starts with the simple city: only empty files, empty folders and block merging are on", () => {
     const on = Object.entries(defaultLayers()).filter(([, value]) => value).map(([key]) => key);
-    expect(on.sort()).toEqual(["emptyFiles", "emptyFolders"]);
+    expect(on.sort()).toEqual(["emptyFiles", "emptyFolders", "mergeFolders"]);
   });
 
-  it("offers nine switches", () => {
-    expect(LAYER_DEFINITIONS).toHaveLength(9);
+  it("offers ten switches", () => {
+    expect(LAYER_DEFINITIONS).toHaveLength(10);
   });
 
   it("marks layers without data as unavailable", () => {

@@ -4,6 +4,7 @@ import type { ArchitectureKind, CityModel } from "../types/cityModel";
 export const LAYER_KEYS = [
   "emptyFiles",
   "emptyFolders",
+  "mergeFolders",
   "apiGates",
   "databases",
   "externalServices",
@@ -28,6 +29,7 @@ const hasArchitecture = (kind: ArchitectureKind) => (city: CityModel | null) =>
 export const LAYER_DEFINITIONS: readonly LayerDefinition[] = [
   { key: "emptyFiles", label: "Empty files", defaultOn: true, isAvailable: () => true },
   { key: "emptyFolders", label: "Empty folders", defaultOn: true, isAvailable: () => true },
+  { key: "mergeFolders", label: "Merge far folders into blocks", defaultOn: true, isAvailable: () => true },
   { key: "apiGates", label: "API gates", defaultOn: false, isAvailable: hasArchitecture("api") },
   { key: "databases", label: "Databases", defaultOn: false, isAvailable: hasArchitecture("database") },
   { key: "externalServices", label: "External services", defaultOn: false, isAvailable: hasArchitecture("external") },
