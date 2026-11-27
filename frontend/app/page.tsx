@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="home">
       <h1>FolderCity</h1>
-      <p>Deine Codebasis als Stadt: Ordner werden zu Plattformen, Dateien zu Gebäuden.</p>
+      <p>Your code base as a city: folders become platforms, files become buildings.</p>
       <BackendStatus />
       <ImportPanel />
     </main>

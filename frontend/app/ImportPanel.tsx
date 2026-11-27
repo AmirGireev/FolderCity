@@ -39,7 +39,7 @@ export function ImportPanel() {
         setSource(label);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unbekannter Fehler.");
+      setError(err instanceof Error ? err.message : "Unknown error.");
     } finally {
       setBusy(false);
     }
@@ -51,7 +51,7 @@ export function ImportPanel() {
   };
 
   function onPick() {
-    void run("Ordner-Auswahl", async () => {
+    void run("Folder picker", async () => {
       const dir = await pickDirectory();
       return dir ? scanTree(dir) : null;
     });
@@ -62,12 +62,12 @@ export function ImportPanel() {
     setDragging(false);
 
     const dir = directoryFromDrop(event.dataTransfer.items);
-    void run("Drag-and-drop", () => scanDirectory(dir, "Bitte genau einen Ordner ablegen (keine einzelnen Dateien)."));
+    void run("Drag-and-drop", () => scanDirectory(dir, "Please drop exactly one folder (no single files)."));
   }
 
   function onFallback(files: FileList | null) {
     const dir = files ? fromFileList(Array.from(files)) : null;
-    void run("Notlösung (ohne leere Ordner)", () => scanDirectory(dir, "Das war kein Ordner."));
+    void run("Fallback (no empty folders)", () => scanDirectory(dir, "That was not a folder."));
   }
 
   function onGithub() {
@@ -79,7 +79,7 @@ export function ImportPanel() {
       });
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as { detail?: unknown } | null;
-        const detail = typeof body?.detail === "string" ? body.detail : `Fehler ${response.status}`;
+        const detail = typeof body?.detail === "string" ? body.detail : `Error ${response.status}`;
         throw new Error(detail);
       }
       return (await response.json()) as ScanResult;
@@ -102,12 +102,12 @@ export function ImportPanel() {
 
   return (
     <section className="import" aria-busy={busy}>
-      <h2>Ordner einlesen</h2>
+      <h2>Scan a folder</h2>
 
       <div className="import-options">
         {canPick && (
           <button type="button" onClick={onPick} disabled={busy}>
-            Ordner auswählen
+            Pick a folder
           </button>
         )}
 
@@ -121,11 +121,11 @@ export function ImportPanel() {
           onDrop={onDrop}
           data-testid="dropzone"
         >
-          Ordner hierher ziehen
+          Drag a folder here
         </div>
 
         <label className="fallback">
-          Notlösung (keine leeren Ordner):{" "}
+          Fallback (no empty folders):{" "}
           <input type="file" {...directoryInputProps} onChange={(e) => onFallback(e.target.files)} disabled={busy} />
         </label>
 
@@ -138,18 +138,18 @@ export function ImportPanel() {
         >
           <input
             type="url"
-            placeholder="https://github.com/besitzer/repo"
+            placeholder="https://github.com/owner/repo"
             value={githubUrl}
             onChange={(e) => setGithubUrl(e.target.value)}
             required
           />
           <button type="submit" disabled={busy}>
-            GitHub-Repo einlesen
+            Scan GitHub repo
           </button>
         </form>
       </div>
 
-      {busy && <p>Lese ein…</p>}
+      {busy && <p>Scanning…</p>}
       {error && (
         <p className="error" role="alert">
           {error}
@@ -159,24 +159,24 @@ export function ImportPanel() {
       {scan && summary && (
         <div className="result" data-testid="result">
           <h3>
-            „{scan.rootName}“ eingelesen <small>({source})</small>
+            “{scan.rootName}” scanned <small>({source})</small>
           </h3>
           <ul>
-            <li>{summary.folders} Ordner, davon {summary.emptyFolders} leer</li>
-            <li>{summary.files} Dateien, davon {summary.emptyFiles} leer</li>
-            <li>{summary.withoutContent} Dateien ohne Inhalt (Bilder, Binärdateien, zu groß)</li>
+            <li>{summary.folders} folders, {summary.emptyFolders} of them empty</li>
+            <li>{summary.files} files, {summary.emptyFiles} of them empty</li>
+            <li>{summary.withoutContent} files without content (images, binary files, too large)</li>
           </ul>
           {summary.truncated && (
             <p className="warning">
-              Nicht alles wurde eingelesen: Es gilt ein Limit von 400 Dateien (und 50 Ordnerebenen).
+              Not everything was scanned: the limit is 400 files (and 50 folder levels).
             </p>
           )}
           <button type="button" onClick={download}>
-            JSON herunterladen
+            Download JSON
           </button>
           <details>
-            <summary>JSON ansehen</summary>
-            <pre>{json.length > PREVIEW_CHARS ? json.slice(0, PREVIEW_CHARS) + "\n… (gekürzt)" : json}</pre>
+            <summary>View JSON</summary>
+            <pre>{json.length > PREVIEW_CHARS ? json.slice(0, PREVIEW_CHARS) + "\n… (shortened)" : json}</pre>
           </details>
         </div>
       )}

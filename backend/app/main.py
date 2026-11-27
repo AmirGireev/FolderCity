@@ -1,8 +1,10 @@
-# The FastAPI app with /health and the GitHub import.
+# The FastAPI app with /health, the GitHub import and the city layout.
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from .layout import LayoutError, build_city
 from .scan.github import GithubImportError, import_github
 from .scan.model import ScanResult
 
@@ -31,3 +33,11 @@ def import_from_github(request: GithubImportRequest) -> ScanResult:
         return import_github(request.url)
     except GithubImportError as err:
         raise HTTPException(status_code=err.status_code, detail=err.message) from err
+
+
+@app.post("/city", response_model=None)
+def create_city(scan: ScanResult) -> JSONResponse:
+    try:
+        return JSONResponse(build_city(scan).to_json_dict())
+    except LayoutError as err:
+        raise HTTPException(status_code=422, detail=str(err)) from err

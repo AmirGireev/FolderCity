@@ -5,18 +5,18 @@ import { useEffect, useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type Status = "prüfe…" | "erreichbar" | "nicht erreichbar";
+type Status = "checking…" | "reachable" | "not reachable";
 
 export function BackendStatus() {
-  const [status, setStatus] = useState<Status>("prüfe…");
+  const [status, setStatus] = useState<Status>("checking…");
 
   useEffect(() => {
     fetch(`${API_URL}/health`)
       .then((r) => r.json())
       .then((body: { status?: string }) =>
-        setStatus(body.status === "ok" ? "erreichbar" : "nicht erreichbar"),
+        setStatus(body.status === "ok" ? "reachable" : "not reachable"),
       )
-      .catch(() => setStatus("nicht erreichbar"));
+      .catch(() => setStatus("not reachable"));
   }, []);
 
   return (

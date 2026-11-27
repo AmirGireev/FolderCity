@@ -5,12 +5,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "FolderCity",
-  description: "Deine Codebasis als begehbare Stadt.",
+  description: "Your code base as a walkable city.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="de">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

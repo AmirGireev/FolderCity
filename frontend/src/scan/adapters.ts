@@ -42,7 +42,7 @@ export function fromDirectoryHandle(handle: FileSystemDirectoryHandle): FsDirect
 
 export async function pickDirectory(win: Window = window): Promise<FsDirectory | null> {
   const picker = (win as PickerWindow).showDirectoryPicker;
-  if (!picker) throw new Error("Dieser Browser kann keinen Ordner direkt auswählen.");
+  if (!picker) throw new Error("This browser cannot pick a folder directly.");
   try {
     return fromDirectoryHandle(await picker.call(win, { mode: "read" }));
   } catch (err) {

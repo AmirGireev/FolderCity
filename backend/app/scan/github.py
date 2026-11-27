@@ -41,11 +41,11 @@ def parse_github_url(url: str) -> tuple[str, str]:
     match = _GITHUB_URL.match(url.strip())
     if not match:
         raise GithubImportError(
-            400, "Nur öffentliche URLs der Form https://github.com/besitzer/repo sind erlaubt."
+            400, "Only public URLs of the form https://github.com/owner/repo are allowed."
         )
     owner, repo = match.group("owner"), match.group("repo")
     if owner in {".", ".."} or repo in {".", ".."}:
-        raise GithubImportError(400, "Ungültige GitHub-URL.")
+        raise GithubImportError(400, "Invalid GitHub URL.")
     return owner, repo
 
 
@@ -123,26 +123,26 @@ def shallow_clone(clone_url: str, target: Path, limits: CloneLimits = DEFAULT_CL
             stderr=subprocess.DEVNULL,
         )
     except FileNotFoundError as exc:
-        raise GithubImportError(500, "git ist auf dem Server nicht installiert.") from exc
+        raise GithubImportError(500, "git is not installed on the server.") from exc
 
     deadline = time.monotonic() + limits.timeout_seconds
     while proc.poll() is None:
         if time.monotonic() > deadline:
             proc.kill()
             proc.wait()
-            raise GithubImportError(504, "Das Klonen hat zu lange gedauert (Zeitlimit).")
+            raise GithubImportError(504, "Cloning took too long (time limit).")
         if target.exists() and _dir_size(target) > limits.max_bytes:
             proc.kill()
             proc.wait()
-            raise GithubImportError(413, "Das Repository ist zu groß (Größenlimit).")
+            raise GithubImportError(413, "The repository is too large (size limit).")
         time.sleep(0.1)
 
     if proc.returncode != 0:
         raise GithubImportError(
-            502, "Das Repository konnte nicht geklont werden (nicht gefunden oder nicht öffentlich?)."
+            502, "The repository could not be cloned (not found or not public?)."
         )
     if _dir_size(target) > limits.max_bytes:
-        raise GithubImportError(413, "Das Repository ist zu groß (Größenlimit).")
+        raise GithubImportError(413, "The repository is too large (size limit).")
 
 
 def import_repository(
