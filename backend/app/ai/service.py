@@ -14,6 +14,7 @@ from .embeddings import Embedder, default_embedder
 from .limits import RateLimiter
 from .llm import LLM, default_llm
 from .store import ChunkStore, RepoInfo, default_store
+from .tour import StationFacts, StationText, write_station_texts
 
 KEYWORD_ONLY_MODEL = "keyword-only"
 EMBED_BATCH = 64
@@ -81,6 +82,9 @@ class AssistantService:
 
     def ask(self, repo_hash_value: str, question: str) -> Answer:
         return self.assistant.ask(repo_hash_value, question)
+
+    def tour_texts(self, repo_name: str, stations: list[StationFacts]) -> list[StationText]:
+        return write_station_texts(self.llm, repo_name, stations)
 
 
 def _int_env(name: str, default: int) -> int:

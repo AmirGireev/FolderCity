@@ -3,13 +3,15 @@
 
 import Link from "next/link";
 import { useCityStore } from "../../src/city/store";
+import { useTourStore } from "../../src/tour/tourStore";
 import { CityView } from "./CityView";
 
 export default function CityPage() {
   const city = useCityStore((state) => state.city);
+  const calm = useTourStore((state) => state.calm);
 
   return (
-    <div className="city-page">
+    <div className={`city-page${calm ? " calm" : ""}`}>
       <header className="city-header">
         <Link href="/" className="brand">
           Folder<span>City</span>

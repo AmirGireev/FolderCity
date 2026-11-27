@@ -10,8 +10,11 @@ import {
   effectiveWidth,
 } from "../../src/city/paneLayout";
 import { useCityStore } from "../../src/city/store";
+import { useTourStore } from "../../src/tour/tourStore";
 import { CodeViewer } from "./CodeViewer";
 import { ScanSummary } from "./ScanSummary";
+import { TourEditor } from "./TourEditor";
+import { TourPlayer } from "./TourPlayer";
 import { Sidebar } from "./Sidebar";
 
 const CityScene = dynamic(() => import("./CityScene"), { ssr: false });
@@ -19,7 +22,9 @@ const CityScene = dynamic(() => import("./CityScene"), { ssr: false });
 type DragMode = "x" | "y" | "xy";
 
 export function CityView() {
-  const hasCity = useCityStore((state) => state.city !== null);
+  const city = useCityStore((state) => state.city);
+  const hasCity = city !== null;
+  const calm = useTourStore((state) => state.calm);
   const workspace = useRef<HTMLDivElement>(null);
   const pane = useRef<HTMLDivElement>(null);
   const [showStats, setShowStats] = useState(false);
@@ -33,6 +38,10 @@ export function CityView() {
     setHeight(clampHeight(window.innerHeight * 0.6));
     setBelowHeight(Math.max(280, Math.round(window.innerHeight * 0.4)));
   }, []);
+
+  useEffect(() => {
+    useTourStore.getState().loadForCity();
+  }, [city]);
 
   useEffect(() => {
     const element = workspace.current;
@@ -84,6 +93,7 @@ export function CityView() {
             <div className="resize-handle right" role="separator" aria-label="Resize width" onPointerDown={startDrag("x")} />
             <div className="resize-handle bottom" role="separator" aria-label="Resize height" onPointerDown={startDrag("y")} />
             <div className="resize-handle corner" role="separator" aria-label="Resize" onPointerDown={startDrag("xy")} />
+            <TourPlayer />
           </div>
           <ScanSummary style={beside ? { flex: "1 1 0", minWidth: 0 } : { flex: "1 1 100%" }} />
           <CodeViewer
@@ -93,6 +103,7 @@ export function CityView() {
         </div>
       </div>
       <Sidebar />
+      <TourEditor />
     </div>
   );
 }

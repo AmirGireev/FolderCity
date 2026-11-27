@@ -1,9 +1,10 @@
-# The endpoints of the AI assistant: /index, /ask and /assistant/status.
+# The endpoints of the AI assistant: /index, /ask, /tour/texts and /assistant/status.
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from .ai import AssistantError, AssistantService, get_service
 from .ai.assistant import MAX_QUESTION_CHARS
+from .ai.tour import MAX_FACTS_CHARS, MAX_STATIONS, StationFacts
 from .analysis import analyze
 from .scan.model import ScanResult
 from .scan.rules import MAX_FILES
@@ -16,6 +17,16 @@ router = APIRouter()
 class AskRequest(BaseModel):
     repoHash: str = Field(min_length=1, max_length=128)
     question: str = Field(max_length=MAX_QUESTION_CHARS * 4)
+
+
+class TourStationIn(BaseModel):
+    id: str = Field(min_length=1, max_length=40)
+    facts: str = Field(min_length=1, max_length=MAX_FACTS_CHARS)
+
+
+class TourTextsRequest(BaseModel):
+    repoName: str = Field(max_length=100)
+    stations: list[TourStationIn] = Field(min_length=1, max_length=MAX_STATIONS)
 
 
 def _client_key(request: Request) -> str:
@@ -67,3 +78,15 @@ def ask(body: AskRequest, request: Request, service: AssistantService = Depends(
         "mode": answer.mode,
         "cached": answer.cached,
     }
+
+
+@router.post("/tour/texts")
+def tour_texts(
+    body: TourTextsRequest, request: Request, service: AssistantService = Depends(get_service)
+) -> dict[str, object]:
+    _limit(service.ask_limiter, request)
+    try:
+        texts = service.tour_texts(body.repoName, [StationFacts(s.id, s.facts) for s in body.stations])
+    except AssistantError as err:
+        raise HTTPException(status_code=err.status_code, detail=err.message) from err
+    return {"texts": [{"id": t.id, "title": t.title, "text": t.text} for t in texts]}

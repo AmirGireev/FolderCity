@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useCityStore } from "../../src/city/store";
 import { ChatPanel } from "./ChatPanel";
+import { TourPanel } from "./TourPanel";
 import { Collapsible } from "./Collapsible";
 import { FolderTree } from "./FolderTree";
 import { Inspector } from "./Inspector";
@@ -39,6 +40,9 @@ export function Sidebar() {
         }
       >
         <Inspector />
+      </Collapsible>
+      <Collapsible title="Tour">
+        <TourPanel />
       </Collapsible>
       <Collapsible title="Assistant">
         <ChatPanel />
