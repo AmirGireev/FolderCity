@@ -84,6 +84,12 @@ class PgStore:
             return
         with self._connect() as conn:
             conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+            existing = conn.execute(
+                "SELECT a.atttypmod FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid "
+                "WHERE c.relname = 'chunks' AND a.attname = 'embedding' AND NOT a.attisdropped"
+            ).fetchone()
+            if existing is not None and existing[0] != self.dimension:
+                conn.execute("DROP TABLE IF EXISTS chunks, repo_files, repos CASCADE")
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS repos ("
                 "repo_hash text PRIMARY KEY, root_name text NOT NULL, "

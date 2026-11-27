@@ -1,0 +1,12 @@
+[
+  { "question": "Where is the email address validated?", "file": "app/users/validation.py" },
+  { "question": "How are passwords checked when a user logs in?", "file": "app/auth/login.py" },
+  { "question": "Where are session tokens created?", "file": "app/auth/tokens.py" },
+  { "question": "Where is the coupon discount applied to an order?", "file": "app/orders/checkout.py" },
+  { "question": "Which code charges the customer's credit card?", "file": "app/orders/payment.py" },
+  { "question": "How is the welcome mail sent?", "file": "app/notifications/email_sender.py" },
+  { "question": "Where does the app try failed calls again with a growing delay?", "file": "app/utils/retry.py" },
+  { "question": "Where is the price for shipping calculated?", "file": "app/shipping/rates.py" },
+  { "question": "Where are the settings read from environment variables?", "file": "app/config.py" },
+  { "question": "Which function loads a user from the database by id?", "file": "app/users/repository.py" }
+]

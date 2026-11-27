@@ -21,8 +21,17 @@ services:
     build: ./backend
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-foldercity}:${POSTGRES_PASSWORD:-foldercity}@db:5432/${POSTGRES_DB:-foldercity}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-haiku-5-5}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-384}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-10}
+      RATE_LIMIT_PER_DAY: ${RATE_LIMIT_PER_DAY:-200}
+      FASTEMBED_CACHE_PATH: /models
     ports:
       - "8000:8000"
+    volumes:
+      - model-cache:/models
     depends_on:
       db:
         condition: service_healthy
@@ -36,3 +45,4 @@ services:
 
 volumes:
   db-data:
+  model-cache:

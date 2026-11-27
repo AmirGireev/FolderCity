@@ -436,3 +436,71 @@ body {
   border-radius: 50%;
   margin-right: 0.4rem;
 }
+
+.chat {
+  font-size: 0.85rem;
+}
+
+.chat .note {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.chat-messages {
+  max-height: 16rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.chat-message {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  background: rgba(127, 127, 127, 0.15);
+}
+
+.chat-message.user {
+  background: rgba(59, 130, 196, 0.3);
+  align-self: flex-end;
+}
+
+.chat-message.error {
+  background: rgba(198, 40, 40, 0.3);
+}
+
+.chat-message p {
+  margin: 0;
+  word-break: break-word;
+}
+
+.chat-refs {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0;
+}
+
+.chat-refs button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.1rem 0;
+  text-align: left;
+  word-break: break-all;
+  text-decoration: underline dotted;
+}
+
+.chat-form {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.chat-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3rem;
+}

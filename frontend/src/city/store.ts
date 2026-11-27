@@ -1,6 +1,7 @@
 // The state store: city, selection, hover, tree expansion, collapsed folders, layer switches, file contents, highlighted lines and camera requests.
 import { create } from "zustand";
 import type { ArchitectureNode, CityModel, CityNode } from "../types/cityModel";
+import type { ScanResult } from "../types/scan";
 import { buildCollapseIndex, type CollapseIndex } from "./collapse";
 import { defaultLayers, type LayerKey, type Layers } from "./layers";
 import { buildRelations, EMPTY_RELATIONS, type Relations } from "./relations";
@@ -32,11 +33,12 @@ interface CityState {
   collapseIndex: CollapseIndex | null;
   collapsedIds: ReadonlySet<string>;
   contents: ReadonlyMap<string, string | null>;
+  scan: ScanResult | null;
   relations: Relations;
   highlight: HighlightRange | null;
   layers: Layers;
   cameraRequest: CameraRequest | null;
-  setCity: (city: CityModel | null, contents?: ReadonlyMap<string, string | null>) => void;
+  setCity: (city: CityModel | null, contents?: ReadonlyMap<string, string | null>, scan?: ScanResult) => void;
   select: (id: string | null) => void;
   selectArch: (id: string | null) => void;
   selectAndFly: (id: string) => void;
@@ -59,12 +61,13 @@ export const useCityStore = create<CityState>((set, get) => ({
   collapseIndex: null,
   collapsedIds: new Set(),
   contents: new Map(),
+  scan: null,
   relations: EMPTY_RELATIONS,
   highlight: null,
   layers: defaultLayers(),
   cameraRequest: null,
 
-  setCity: (city, contents) =>
+  setCity: (city, contents, scan) =>
     set((state) => ({
       city,
       nodesById: new Map((city?.nodes ?? []).map((node) => [node.id, node])),
@@ -76,6 +79,7 @@ export const useCityStore = create<CityState>((set, get) => ({
       collapseIndex: city ? buildCollapseIndex(city) : null,
       collapsedIds: new Set(),
       contents: contents ?? new Map(),
+      scan: scan ?? null,
       relations: city ? buildRelations(city.edges) : EMPTY_RELATIONS,
       highlight: null,
       cameraRequest: city

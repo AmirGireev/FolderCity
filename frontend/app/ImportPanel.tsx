@@ -43,7 +43,7 @@ export function ImportPanel() {
       if (result) {
         setScan(result);
         setSource(label);
-        useCityStore.getState().setCity(await fetchCity(result), new Map(result.files.map((f) => [f.path, f.content])));
+        useCityStore.getState().setCity(await fetchCity(result), new Map(result.files.map((f) => [f.path, f.content])), result);
         router.push(`/city${window.location.search}`);
       }
     } catch (err) {

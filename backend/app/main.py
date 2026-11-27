@@ -1,9 +1,10 @@
-# The FastAPI app with /health, the GitHub import and the city (layout plus code analysis).
+# The FastAPI app with /health, the GitHub import, the city (layout plus code analysis) and the AI assistant.
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from .assistant_routes import router as assistant_router
 from .layout import LayoutError
 from .pipeline import build_full_city
 from .scan.github import GithubImportError, import_github
@@ -17,6 +18,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(assistant_router)
 
 
 @app.get("/health")

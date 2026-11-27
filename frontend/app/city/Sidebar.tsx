@@ -1,7 +1,8 @@
-// The right sidebar: details, layer switches and folder tree, each foldable, and the whole bar can be hidden.
+// The right sidebar: details, assistant, layer switches and folder tree, each foldable, and the whole bar can be hidden.
 "use client";
 
 import { useState } from "react";
+import { ChatPanel } from "./ChatPanel";
 import { Collapsible } from "./Collapsible";
 import { FolderTree } from "./FolderTree";
 import { Inspector } from "./Inspector";
@@ -27,6 +28,9 @@ export function Sidebar() {
       </button>
       <Collapsible title="Details">
         <Inspector />
+      </Collapsible>
+      <Collapsible title="Assistant">
+        <ChatPanel />
       </Collapsible>
       <Collapsible title="Layers">
         <LayerPanel />

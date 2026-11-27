@@ -93,6 +93,9 @@ def hybrid_search(
 ) -> list[Chunk]:
     rankings = [keyword_search(store.chunks(repo_hash), question, architecture)]
     if embedder is not None:
-        vector = embedder.embed([question])[0]
-        rankings.append(store.vector_search(repo_hash, vector, CANDIDATES))
+        try:
+            vector = embedder.embed([question])[0]
+            rankings.append(store.vector_search(repo_hash, vector, CANDIDATES))
+        except Exception:
+            pass
     return reciprocal_rank_fusion(rankings)[:limit]
