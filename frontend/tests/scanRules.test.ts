@@ -11,6 +11,9 @@ import {
   hasBinaryExtension,
   isBlankText,
   shouldSkipDirectory,
+  ENV_TEMPLATES,
+  isEnvTemplate,
+  redactEnvTemplate,
   shouldSkipFile,
 } from "../src/scan/rules";
 import { RULES, SCAN_SCHEMA } from "./fakes";
@@ -61,5 +64,28 @@ describe("types match schema/scan.schema.json", () => {
     expect([...SCAN_SCHEMA.required]).toEqual(["schemaVersion", "rootName", "directories", "emptyDirectories", "files", "truncated"]);
     expect([...SCAN_SCHEMA.$defs.ScanFile.required]).toEqual(["path", "size", "content", "omitted", "isEmpty"]);
     expect(SCAN_SCHEMA.$defs.ScanFile.properties.omitted.enum).toEqual(["binary", "too_large", null]);
+  });
+});
+
+describe("env templates", () => {
+  it("match the shared rules", () => {
+    expect([...ENV_TEMPLATES].sort()).toEqual([...(RULES as { envTemplates: string[] }).envTemplates].sort());
+  });
+
+  it.each([".env.example", ".env.sample", ".env.template", ".env.dist"])("%s is kept but redacted", (n) => {
+    expect(shouldSkipFile(n)).toBe(false);
+    expect(isEnvTemplate(n)).toBe(true);
+  });
+
+  it.each([".env", ".env.local", ".env.production", ".env.example.local"])("%s is still skipped", (n) => {
+    expect(shouldSkipFile(n)).toBe(true);
+    expect(isEnvTemplate(n)).toBe(false);
+  });
+
+  it("keeps only variable names", () => {
+    const text = "# comment\nDB_URL=postgres://user:secret@db/app\nexport TOKEN=abc\n  SPACED = 1 \nEMPTY=\nno equals\n1BAD=x\n";
+    expect(redactEnvTemplate(text)).toBe("DB_URL=\nTOKEN=\nSPACED=\nEMPTY=\n");
+    expect(redactEnvTemplate("API_KEY=secret\r\nOTHER=secret2\r\n")).not.toContain("secret");
+    expect(redactEnvTemplate("")).toBe("");
   });
 });

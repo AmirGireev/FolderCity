@@ -1,6 +1,6 @@
 // The state store: city, selection, hover, tree expansion, collapsed folders, layer switches, file contents, highlighted lines and camera requests.
 import { create } from "zustand";
-import type { CityModel, CityNode } from "../types/cityModel";
+import type { ArchitectureNode, CityModel, CityNode } from "../types/cityModel";
 import { buildCollapseIndex, type CollapseIndex } from "./collapse";
 import { defaultLayers, type LayerKey, type Layers } from "./layers";
 import { buildRelations, EMPTY_RELATIONS, type Relations } from "./relations";
@@ -25,6 +25,8 @@ interface CityState {
   city: CityModel | null;
   nodesById: Map<string, CityNode>;
   selectedId: string | null;
+  selectedArchId: string | null;
+  archById: ReadonlyMap<string, ArchitectureNode>;
   hoverId: string | null;
   expandedIds: ReadonlySet<string>;
   collapseIndex: CollapseIndex | null;
@@ -36,6 +38,7 @@ interface CityState {
   cameraRequest: CameraRequest | null;
   setCity: (city: CityModel | null, contents?: ReadonlyMap<string, string | null>) => void;
   select: (id: string | null) => void;
+  selectArch: (id: string | null) => void;
   selectAndFly: (id: string) => void;
   hover: (id: string | null) => void;
   toggleExpanded: (id: string) => void;
@@ -49,6 +52,8 @@ export const useCityStore = create<CityState>((set, get) => ({
   city: null,
   nodesById: new Map(),
   selectedId: null,
+  selectedArchId: null,
+  archById: new Map(),
   hoverId: null,
   expandedIds: new Set(),
   collapseIndex: null,
@@ -64,6 +69,8 @@ export const useCityStore = create<CityState>((set, get) => ({
       city,
       nodesById: new Map((city?.nodes ?? []).map((node) => [node.id, node])),
       selectedId: null,
+      selectedArchId: null,
+      archById: new Map((city?.architecture ?? []).map((item) => [item.id, item])),
       hoverId: null,
       expandedIds: new Set(city ? [city.rootId] : []),
       collapseIndex: city ? buildCollapseIndex(city) : null,
@@ -78,13 +85,25 @@ export const useCityStore = create<CityState>((set, get) => ({
 
   select: (id) =>
     set((state) => {
-      if (id === null || !state.nodesById.has(id)) return { selectedId: null, highlight: null };
+      if (id === null || !state.nodesById.has(id)) return { selectedId: null, selectedArchId: null, highlight: null };
       return {
         selectedId: id,
+        selectedArchId: id === state.selectedId ? state.selectedArchId : null,
         highlight: state.highlight?.fileId === id ? state.highlight : null,
         expandedIds: new Set([...state.expandedIds, ...ancestorIds(id, state.nodesById)]),
       };
     }),
+
+  selectArch: (id) => {
+    const item = id === null ? undefined : get().archById.get(id);
+    if (!item) {
+      set({ selectedArchId: null });
+      return;
+    }
+    get().highlightLines(item.fileId, item.line, item.line);
+    get().select(item.fileId);
+    set({ selectedArchId: item.id });
+  },
 
   selectAndFly: (id) => {
     get().select(id);

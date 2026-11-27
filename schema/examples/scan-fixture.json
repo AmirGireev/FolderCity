@@ -21,6 +21,7 @@
     "node_modules": { "lib.js": "module.exports = 1;" },
     ".git": { "HEAD": "ref: refs/heads/main\n" },
     "__pycache__": { "a.pyc": { "$bytes": [1, 2] } },
+    ".env.example": "# Settings\nDB_URL=postgres://user:secret@db/app\nexport TOKEN=abc123\nEMPTY=\nnot a variable\n",
     ".env": "SECRET=1",
     ".env.local": "SECRET=2",
     "prod.env": "SECRET=3"

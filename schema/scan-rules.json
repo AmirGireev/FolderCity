@@ -6,6 +6,7 @@
     "prefixes": [".env."],
     "suffixes": [".env", ".lock"]
   },
+  "envTemplates": [".env.example", ".env.sample", ".env.template", ".env.dist"],
   "binaryExtensions": [
     ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".tif", ".tiff", ".avif", ".heic", ".psd",
     ".mp4", ".mov", ".avi", ".mkv", ".webm", ".mp3", ".wav", ".ogg", ".flac", ".aac",

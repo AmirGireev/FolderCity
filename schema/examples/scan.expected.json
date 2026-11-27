@@ -24,6 +24,13 @@
   ],
   "files": [
     {
+      "path": ".env.example",
+      "size": 90,
+      "content": "DB_URL=\nTOKEN=\nEMPTY=\n",
+      "omitted": null,
+      "isEmpty": false
+    },
+    {
       "path": "README.md",
       "size": 7,
       "content": "# Demo\n",

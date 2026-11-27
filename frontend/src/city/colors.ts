@@ -1,5 +1,5 @@
 // Picks colors for buildings (by file extension) and platforms (by nesting level).
-import type { CityNode } from "../types/cityModel";
+import type { ArchitectureKind, CityNode } from "../types/cityModel";
 
 const EXTENSION_COLORS: Record<string, string> = {
   ".py": "#3b82c4",
@@ -49,3 +49,16 @@ export function platformColor(node: CityNode): string {
 
 export const HOVER_COLOR = "#ffffff";
 export const SELECTED_COLOR = "#ff4d6d";
+
+const ARCHITECTURE_COLORS: Record<ArchitectureKind, string> = {
+  api: "#fbbf24",
+  database: "#22d3ee",
+  external: "#c084fc",
+  server: "#fb7185",
+};
+
+export function architectureColor(kind: ArchitectureKind): string {
+  return ARCHITECTURE_COLORS[kind];
+}
+
+export const DATA_PATH_COLOR = "#fde047";

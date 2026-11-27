@@ -8,4 +8,4 @@ from .scan.model import ScanResult
 def build_full_city(scan: ScanResult) -> CityModel:
     city = build_city(scan)
     analysis = analyze(scan)
-    return city.model_copy(update={"edges": analysis.edges, "symbols": analysis.symbols})
+    return city.model_copy(update={"edges": analysis.edges, "symbols": analysis.symbols, "architecture": analysis.architecture})

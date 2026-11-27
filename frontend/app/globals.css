@@ -273,3 +273,57 @@ body {
   margin: 0;
   opacity: 0.6;
 }
+
+.city-label.arch {
+  background: rgba(251, 191, 36, 0.9);
+  color: #111;
+  font-weight: 600;
+}
+
+.arch-info {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.3);
+}
+
+.arch-info h4 {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.arch-info ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.arch-info button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.1rem 0;
+  text-align: left;
+  word-break: break-all;
+  text-decoration: underline dotted;
+}
+
+.arch-info .note {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin: 0.25rem 0;
+}
+
+.arch-info .path {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.arch-badge {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  margin-right: 0.4rem;
+}

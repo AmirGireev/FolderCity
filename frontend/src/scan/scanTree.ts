@@ -5,6 +5,8 @@ import {
   hasBinaryExtension,
   isBlankText,
   shouldSkipDirectory,
+  isEnvTemplate,
+  redactEnvTemplate,
   shouldSkipFile,
 } from "./rules";
 import type { ScanFile, ScanResult } from "../types/scan";
@@ -48,7 +50,8 @@ async function buildFile(path: string, file: FsFile, limits: ScanLimits): Promis
   if (text === null) {
     return { path, size, content: null, omitted: "binary", isEmpty: size === 0 };
   }
-  return { path, size, content: text, omitted: null, isEmpty: isBlankText(text) };
+  const content = isEnvTemplate(file.name) ? redactEnvTemplate(text) : text;
+  return { path, size, content, omitted: null, isEmpty: isBlankText(content) };
 }
 
 function byName(a: FsNode, b: FsNode): number {

@@ -17,6 +17,8 @@ export const BINARY_EXTENSIONS: readonly string[] = [
   ".woff", ".woff2", ".ttf", ".otf", ".eot", ".sqlite", ".db", ".iso", ".dmg",
 ];
 
+export const ENV_TEMPLATES: readonly string[] = [".env.example", ".env.sample", ".env.template", ".env.dist"];
+
 export interface ScanLimits {
   maxFileBytes: number;
   maxFiles: number;
@@ -40,7 +42,24 @@ export function shouldSkipDirectory(name: string): boolean {
 }
 
 
+export function isEnvTemplate(name: string): boolean {
+  return ENV_TEMPLATES.includes(name);
+}
+
+export function redactEnvTemplate(text: string): string {
+  const names: string[] = [];
+  for (const raw of text.split(/\r?\n|\r/)) {
+    let line = raw.trim();
+    if (line === "" || line.startsWith("#") || !line.includes("=")) continue;
+    if (line.startsWith("export ")) line = line.slice("export ".length).trimStart();
+    const name = line.slice(0, line.indexOf("=")).trim();
+    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) names.push(name);
+  }
+  return names.map((name) => `${name}=\n`).join("");
+}
+
 export function shouldSkipFile(name: string): boolean {
+  if (isEnvTemplate(name)) return false;
   return (
     SKIP_FILE_EXACT.includes(name) ||
     SKIP_FILE_PREFIXES.some((p) => name.startsWith(p)) ||

@@ -3,6 +3,7 @@
 
 import { formatBytes } from "../../src/city/format";
 import { useCityStore } from "../../src/city/store";
+import { ArchitectureInfo } from "./ArchitectureInfo";
 
 export function Inspector() {
   const node = useCityStore((state) => (state.selectedId ? state.nodesById.get(state.selectedId) : undefined));
@@ -49,6 +50,7 @@ export function Inspector() {
         <>
           <RelationList title="Imports" ids={imports.map((edge) => edge.target)} onPick={selectAndFly} />
           <RelationList title="Imported by" ids={importedBy.map((edge) => edge.source)} onPick={selectAndFly} />
+          <ArchitectureInfo fileId={node.id} />
         </>
       )}
       <button type="button" onClick={() => flyTo(node.id)}>

@@ -104,6 +104,8 @@ def _build(path: str, size: int, disk_path: Path, limits: ScanLimits) -> ScanFil
     text = decode_text(read())
     if text is None:
         return ScanFile(path=path, size=size, content=None, omitted="binary", isEmpty=size == 0)
+    if rules.is_env_template(name):
+        text = rules.redact_env_template(text)
     return ScanFile(
         path=path, size=size, content=text, omitted=None, isEmpty=rules.is_blank_text(text)
     )

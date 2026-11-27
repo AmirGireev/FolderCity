@@ -34,7 +34,12 @@ export const LAYER_DEFINITIONS: readonly LayerDefinition[] = [
   { key: "databases", label: "Databases", defaultOn: false, isAvailable: hasArchitecture("database") },
   { key: "externalServices", label: "External services", defaultOn: false, isAvailable: hasArchitecture("external") },
   { key: "servers", label: "Servers and containers", defaultOn: false, isAvailable: hasArchitecture("server") },
-  { key: "dataPaths", label: "Data paths", defaultOn: false, isAvailable: () => false },
+  {
+    key: "dataPaths",
+    label: "Data paths (presumed)",
+    defaultOn: false,
+    isAvailable: (city) => hasArchitecture("api")(city) && hasArchitecture("database")(city),
+  },
   { key: "complexity", label: "Complexity", defaultOn: false, isAvailable: () => false },
   { key: "errors", label: "Errors", defaultOn: false, isAvailable: () => false },
 ];

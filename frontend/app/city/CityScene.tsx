@@ -1,4 +1,4 @@
-// The 3D scene: platforms, buildings, collapsed folder blocks, edge lines, shadows, ground grid and labels.
+// The 3D scene: platforms, buildings, collapsed folder blocks, architecture layers, edge lines, shadows, grid and labels.
 "use client";
 
 import { Canvas } from "@react-three/fiber";
@@ -9,6 +9,7 @@ import { colorForExtension, platformColor } from "../../src/city/colors";
 import { EMPTY_FOLDER_PLATE_HEIGHT } from "../../src/city/geometry";
 import { useCityStore } from "../../src/city/store";
 import type { CityNode } from "../../src/types/cityModel";
+import { ArchitectureLayer } from "./ArchitectureLayer";
 import { BoxEdges } from "./BoxEdges";
 import { CameraRig } from "./CameraRig";
 import { CollapseController } from "./CollapseController";
@@ -50,6 +51,7 @@ export default function CityScene({ showStats }: { showStats: boolean }) {
       emptyFiles: nodes.filter((n) => n.type === "empty_file"),
       emptyFolders: nodes.filter((n) => n.type === "empty_folder"),
       clusters,
+      hidden,
       openFolders: nodes.filter((n) => n.type === "folder" && !collapsedIds.has(n.id)),
     };
   }, [city, collapsedIds, collapseIndex]);
@@ -104,6 +106,7 @@ export default function CityScene({ showStats }: { showStats: boolean }) {
           <EmptyFolderOutlines nodes={scene.emptyFolders} />
         </>
       )}
+      <ArchitectureLayer hidden={scene.hidden} />
       <Labels folders={scene.openFolders} clusters={scene.clusters} />
       {showStats && <Stats />}
     </Canvas>

@@ -16,6 +16,10 @@ def test_skip_files_match():
     assert tuple(RULES["skipFiles"]["suffixes"]) == rules.SKIP_FILE_SUFFIXES
 
 
+def test_env_templates_match():
+    assert set(RULES["envTemplates"]) == rules.ENV_TEMPLATES
+
+
 def test_binary_extensions_match():
     assert set(RULES["binaryExtensions"]) == rules.BINARY_EXTENSIONS
 
@@ -61,3 +65,25 @@ def test_binary_extension_is_case_insensitive_and_needs_a_name():
     assert rules.has_binary_extension("PHOTO.JPG")
     assert not rules.has_binary_extension(".png")
     assert not rules.has_binary_extension("readme")
+
+
+@pytest.mark.parametrize("name", [".env.example", ".env.sample", ".env.template", ".env.dist"])
+def test_env_templates_are_kept_but_redacted(name):
+    assert not rules.should_skip_file(name)
+    assert rules.is_env_template(name)
+
+
+def test_real_env_files_are_still_skipped():
+    for name in (".env", ".env.local", ".env.production", ".env.example.local"):
+        assert rules.should_skip_file(name)
+        assert not rules.is_env_template(name)
+
+
+def test_redaction_keeps_only_variable_names():
+    text = "# comment\nDB_URL=postgres://user:secret@db/app\nexport TOKEN=abc\n  SPACED = 1 \nEMPTY=\nno equals\n1BAD=x\n"
+    assert rules.redact_env_template(text) == "DB_URL=\nTOKEN=\nSPACED=\nEMPTY=\n"
+
+
+def test_redaction_never_keeps_values():
+    assert "secret" not in rules.redact_env_template("API_KEY=secret\r\nOTHER=secret2\r\n")
+    assert rules.redact_env_template("") == ""

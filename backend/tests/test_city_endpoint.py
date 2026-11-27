@@ -44,3 +44,18 @@ def test_city_contains_import_edges_and_symbols():
     ]
     ids = {n["id"] for n in body["nodes"]}
     assert {"main.py", "util.py"} <= ids
+
+
+def test_city_contains_architecture_elements():
+    scan = {
+        "schemaVersion": "1.0", "rootName": "p", "directories": [], "emptyDirectories": [], "truncated": False,
+        "files": [
+            {"path": "api.py", "size": 40, "content": "@app.get(\"/items\")\ndef items():\n    pass\n", "omitted": None, "isEmpty": False},
+            {"path": "Dockerfile", "size": 30, "content": "FROM python:3.12\nEXPOSE 8000\n", "omitted": None, "isEmpty": False},
+        ],
+    }  # fmt: skip
+    body = client.post("/city", json=scan).json()
+    assert [(a["kind"], a["label"], a["fileId"], a["line"]) for a in body["architecture"]] == [
+        ("server", "Dockerfile: python:3.12 (port 8000)", "Dockerfile", 1),
+        ("api", "GET /items", "api.py", 1),
+    ]

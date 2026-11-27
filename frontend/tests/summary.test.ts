@@ -8,7 +8,7 @@ it("counts folders, files, empty ones and ones without content", () => {
   expect(summarize(EXPECTED as ScanResult)).toEqual({
     folders: 10,
     emptyFolders: 7,
-    files: 8,
+    files: 9,
     emptyFiles: 3,
     withoutContent: 2,
     truncated: false,
