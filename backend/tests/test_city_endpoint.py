@@ -27,3 +27,20 @@ def test_bad_path_gives_422():
     response = client.post("/city", json=scan)
     assert response.status_code == 422
     assert "invalid path" in response.json()["detail"]
+
+
+def test_city_contains_import_edges_and_symbols():
+    scan = {
+        "schemaVersion": "1.0", "rootName": "p", "directories": [], "emptyDirectories": [], "truncated": False,
+        "files": [
+            {"path": "main.py", "size": 30, "content": "import util\n\ndef main():\n    pass\n", "omitted": None, "isEmpty": False},
+            {"path": "util.py", "size": 10, "content": "X = 1\n", "omitted": None, "isEmpty": False},
+        ],
+    }  # fmt: skip
+    body = client.post("/city", json=scan).json()
+    assert body["edges"] == [{"source": "main.py", "target": "util.py", "line": 1}]
+    assert [(s["fileId"], s["kind"], s["name"], s["startLine"], s["endLine"]) for s in body["symbols"]] == [
+        ("main.py", "function", "main", 3, 4)
+    ]
+    ids = {n["id"] for n in body["nodes"]}
+    assert {"main.py", "util.py"} <= ids

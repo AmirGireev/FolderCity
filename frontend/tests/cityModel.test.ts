@@ -6,6 +6,7 @@ import {
   ARCHITECTURE_KINDS,
   NODE_TYPES,
   SOURCE_KINDS,
+  SYMBOL_KINDS,
   type CityModel,
 } from "../src/types/cityModel";
 import example from "../../schema/examples/minimal.city.json";
@@ -26,18 +27,23 @@ describe("CityModel types match the JSON schema", () => {
     );
   });
 
+  it("SymbolKind values match", () => {
+    expect([...SYMBOL_KINDS].sort()).toEqual([...schema.$defs.SymbolKind.enum].sort());
+  });
+
   it("source kinds match", () => {
     expect([...SOURCE_KINDS].sort()).toEqual([...schema.properties.source.properties.kind.enum].sort());
   });
 
   it("required fields of the root object match", () => {
-    const tsRequired = ["schemaVersion", "rootId", "nodes", "edges", "architecture"];
+    const tsRequired = ["schemaVersion", "rootId", "nodes", "edges", "architecture", "symbols"];
     expect(tsRequired.sort()).toEqual([...schema.required].sort());
   });
 
   it("the example only uses known values", () => {
     for (const n of typedExample.nodes) expect(NODE_TYPES).toContain(n.type);
     for (const a of typedExample.architecture) expect(ARCHITECTURE_KINDS).toContain(a.kind);
+    for (const sym of typedExample.symbols) expect(SYMBOL_KINDS).toContain(sym.kind);
     expect(typedExample.nodes.some((n) => n.id === typedExample.rootId)).toBe(true);
   });
 });

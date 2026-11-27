@@ -39,7 +39,7 @@ export function ImportPanel() {
       if (result) {
         setScan(result);
         setSource(label);
-        useCityStore.getState().setCity(await fetchCity(result));
+        useCityStore.getState().setCity(await fetchCity(result), new Map(result.files.map((f) => [f.path, f.content])));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error.");

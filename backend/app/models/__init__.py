@@ -8,6 +8,7 @@ from .city_model import (
     Node,
     Position,
     Source,
+    Symbol,
 )
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "Node",
     "Position",
     "Source",
+    "Symbol",
 ]

@@ -5,7 +5,7 @@
   "description": "Contract between backend and frontend: a code base as a city. Also the format of the precomputed demos.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "rootId", "nodes", "edges", "architecture"],
+  "required": ["schemaVersion", "rootId", "nodes", "edges", "architecture", "symbols"],
   "properties": {
     "schemaVersion": { "const": "1.0" },
     "source": {
@@ -23,7 +23,8 @@
     "rootId": { "type": "string", "description": "id of the root folder in nodes." },
     "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
     "edges": { "type": "array", "items": { "$ref": "#/$defs/ImportEdge" } },
-    "architecture": { "type": "array", "items": { "$ref": "#/$defs/ArchitectureNode" } }
+    "architecture": { "type": "array", "items": { "$ref": "#/$defs/ArchitectureNode" } },
+    "symbols": { "type": "array", "description": "Functions, classes and methods found in files.", "items": { "$ref": "#/$defs/Symbol" } }
   },
   "$defs": {
     "NodeType": {
@@ -84,6 +85,22 @@
         "source": { "type": "string", "description": "id of the importing file." },
         "target": { "type": "string", "description": "id of the imported file." },
         "line": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "SymbolKind": {
+      "enum": ["function", "class", "method"]
+    },
+    "Symbol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fileId", "kind", "name", "startLine", "endLine"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "fileId": { "type": "string", "description": "id of the file (node) that contains the symbol." },
+        "kind": { "$ref": "#/$defs/SymbolKind" },
+        "name": { "type": "string", "description": "Methods are written as Class.method." },
+        "startLine": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 }
       }
     },
     "ArchitectureKind": {

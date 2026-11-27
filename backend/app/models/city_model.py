@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 NodeType = Literal["folder", "file", "empty_folder", "empty_file"]
 ArchitectureKind = Literal["api", "database", "external", "server"]
 SourceKind = Literal["local", "github", "demo"]
+SymbolKind = Literal["function", "class", "method"]
 
 
 class _Strict(BaseModel):
@@ -61,6 +62,15 @@ class ArchitectureNode(_Strict):
     line: int = Field(ge=1)
 
 
+class Symbol(_Strict):
+    id: str = Field(min_length=1)
+    fileId: str
+    kind: SymbolKind
+    name: str
+    startLine: int = Field(ge=1)
+    endLine: int = Field(ge=1)
+
+
 class Source(_Strict):
     kind: SourceKind
     name: str
@@ -75,6 +85,7 @@ class CityModel(_Strict):
     nodes: list[Node]
     edges: list[ImportEdge]
     architecture: list[ArchitectureNode]
+    symbols: list[Symbol]
 
     def to_json_dict(self) -> dict[str, Union[str, list, dict]]:
         data = self.model_dump(mode="json", exclude_none=True)

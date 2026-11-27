@@ -1,8 +1,9 @@
-// The state store: city, selection, hover, tree expansion, collapsed folders, layer switches and camera requests.
+// The state store: city, selection, hover, tree expansion, collapsed folders, layer switches, file contents, highlighted lines and camera requests.
 import { create } from "zustand";
 import type { CityModel, CityNode } from "../types/cityModel";
 import { buildCollapseIndex, type CollapseIndex } from "./collapse";
 import { defaultLayers, type LayerKey, type Layers } from "./layers";
+import { buildRelations, EMPTY_RELATIONS, type Relations } from "./relations";
 import { ancestorIds } from "./tree";
 
 export type { Layers } from "./layers";
@@ -10,6 +11,13 @@ export type { Layers } from "./layers";
 export interface CameraRequest {
   nodeId: string;
   instant: boolean;
+  seq: number;
+}
+
+export interface HighlightRange {
+  fileId: string;
+  startLine: number;
+  endLine: number;
   seq: number;
 }
 
@@ -21,13 +29,17 @@ interface CityState {
   expandedIds: ReadonlySet<string>;
   collapseIndex: CollapseIndex | null;
   collapsedIds: ReadonlySet<string>;
+  contents: ReadonlyMap<string, string | null>;
+  relations: Relations;
+  highlight: HighlightRange | null;
   layers: Layers;
   cameraRequest: CameraRequest | null;
-  setCity: (city: CityModel | null) => void;
+  setCity: (city: CityModel | null, contents?: ReadonlyMap<string, string | null>) => void;
   select: (id: string | null) => void;
   selectAndFly: (id: string) => void;
   hover: (id: string | null) => void;
   toggleExpanded: (id: string) => void;
+  highlightLines: (fileId: string, startLine: number, endLine: number) => void;
   setCollapsed: (ids: ReadonlySet<string>) => void;
   setLayer: (layer: LayerKey, on: boolean) => void;
   flyTo: (nodeId: string) => void;
@@ -41,10 +53,13 @@ export const useCityStore = create<CityState>((set, get) => ({
   expandedIds: new Set(),
   collapseIndex: null,
   collapsedIds: new Set(),
+  contents: new Map(),
+  relations: EMPTY_RELATIONS,
+  highlight: null,
   layers: defaultLayers(),
   cameraRequest: null,
 
-  setCity: (city) =>
+  setCity: (city, contents) =>
     set((state) => ({
       city,
       nodesById: new Map((city?.nodes ?? []).map((node) => [node.id, node])),
@@ -53,6 +68,9 @@ export const useCityStore = create<CityState>((set, get) => ({
       expandedIds: new Set(city ? [city.rootId] : []),
       collapseIndex: city ? buildCollapseIndex(city) : null,
       collapsedIds: new Set(),
+      contents: contents ?? new Map(),
+      relations: city ? buildRelations(city.edges) : EMPTY_RELATIONS,
+      highlight: null,
       cameraRequest: city
         ? { nodeId: city.rootId, instant: true, seq: (state.cameraRequest?.seq ?? 0) + 1 }
         : null,
@@ -60,8 +78,12 @@ export const useCityStore = create<CityState>((set, get) => ({
 
   select: (id) =>
     set((state) => {
-      if (id === null || !state.nodesById.has(id)) return { selectedId: null };
-      return { selectedId: id, expandedIds: new Set([...state.expandedIds, ...ancestorIds(id, state.nodesById)]) };
+      if (id === null || !state.nodesById.has(id)) return { selectedId: null, highlight: null };
+      return {
+        selectedId: id,
+        highlight: state.highlight?.fileId === id ? state.highlight : null,
+        expandedIds: new Set([...state.expandedIds, ...ancestorIds(id, state.nodesById)]),
+      };
     }),
 
   selectAndFly: (id) => {
@@ -77,6 +99,15 @@ export const useCityStore = create<CityState>((set, get) => ({
       if (!next.delete(id)) next.add(id);
       return { expandedIds: next };
     }),
+
+  highlightLines: (fileId, startLine, endLine) => {
+    const node = get().nodesById.get(fileId);
+    if (!node || (node.type !== "file" && node.type !== "empty_file")) return;
+    get().select(fileId);
+    const low = Math.max(1, Math.min(startLine, endLine));
+    const high = Math.max(low, startLine, endLine);
+    set((state) => ({ highlight: { fileId, startLine: low, endLine: high, seq: (state.highlight?.seq ?? 0) + 1 } }));
+  },
 
   setCollapsed: (ids) => set({ collapsedIds: ids }),
 

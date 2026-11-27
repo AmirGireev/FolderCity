@@ -54,7 +54,7 @@ describe("layers", () => {
     expect(available("emptyFiles")).toBe(true);
     expect(available("apiGates")).toBe(true);
     expect(available("databases")).toBe(true);
-    expect(available("dataPaths")).toBe(true);
+    expect(available("dataPaths")).toBe(false);
     expect(available("externalServices")).toBe(false);
     expect(available("servers")).toBe(false);
     expect(available("complexity")).toBe(false);

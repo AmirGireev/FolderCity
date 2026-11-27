@@ -5,6 +5,9 @@ export type NodeType = (typeof NODE_TYPES)[number];
 export const ARCHITECTURE_KINDS = ["api", "database", "external", "server"] as const;
 export type ArchitectureKind = (typeof ARCHITECTURE_KINDS)[number];
 
+export const SYMBOL_KINDS = ["function", "class", "method"] as const;
+export type SymbolKind = (typeof SYMBOL_KINDS)[number];
+
 export const SOURCE_KINDS = ["local", "github", "demo"] as const;
 export type SourceKind = (typeof SOURCE_KINDS)[number];
 
@@ -58,6 +61,15 @@ export interface ArchitectureNode {
   line: number;
 }
 
+export interface CitySymbol {
+  id: string;
+  fileId: string;
+  kind: SymbolKind;
+  name: string;
+  startLine: number;
+  endLine: number;
+}
+
 export interface CitySource {
   kind: SourceKind;
   name: string;
@@ -72,4 +84,5 @@ export interface CityModel {
   nodes: CityNode[];
   edges: ImportEdge[];
   architecture: ArchitectureNode[];
+  symbols: CitySymbol[];
 }
