@@ -1,4 +1,4 @@
-// Side panel with name, path, size and line count of the selected node.
+// Panel with name, path, size and line count of the selected node.
 "use client";
 
 import { formatBytes } from "../../src/city/format";
@@ -10,15 +10,15 @@ export function Inspector() {
 
   if (!node) {
     return (
-      <aside className="inspector" data-testid="inspector">
+      <section className="inspector" data-testid="inspector">
         <p>Click a building or platform to see details. Double-click to fly there.</p>
-      </aside>
+      </section>
     );
   }
 
   const isFolder = node.type === "folder" || node.type === "empty_folder";
   return (
-    <aside className="inspector" data-testid="inspector">
+    <section className="inspector" data-testid="inspector">
       <h3>{node.name}</h3>
       <dl>
         <dt>Path</dt>
@@ -44,6 +44,6 @@ export function Inspector() {
       <button type="button" onClick={() => flyTo(node.id)}>
         Fly to
       </button>
-    </aside>
+    </section>
   );
 }

@@ -4,7 +4,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useCityStore } from "../../src/city/store";
-import { Inspector } from "./Inspector";
+import { Sidebar } from "./Sidebar";
 
 const CityScene = dynamic(() => import("./CityScene"), { ssr: false });
 
@@ -21,7 +21,7 @@ export function CityView() {
       <div className="city-canvas">
         <CityScene showStats={showStats} />
       </div>
-      <Inspector />
+      <Sidebar />
     </section>
   );
 }
