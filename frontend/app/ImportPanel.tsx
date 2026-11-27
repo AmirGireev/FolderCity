@@ -8,6 +8,8 @@ import {
   pickDirectory,
   supportsDirectoryPicker,
 } from "../src/scan/adapters";
+import { fetchCity } from "../src/city/api";
+import { useCityStore } from "../src/city/store";
 import { scanTree, type FsDirectory } from "../src/scan/scanTree";
 import { summarize } from "../src/scan/summary";
 import type { ScanResult } from "../src/types/scan";
@@ -37,6 +39,7 @@ export function ImportPanel() {
       if (result) {
         setScan(result);
         setSource(label);
+        useCityStore.getState().setCity(await fetchCity(result));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error.");
