@@ -103,14 +103,16 @@ describe("placing architecture elements", () => {
     expect(satellite.map((s) => s.shape).sort()).toEqual(["box", "sphere"]);
   });
 
-  it("lines up several roof items of one file side by side", () => {
+  it("spreads several roof items of one file over the roof", () => {
     const placement = placeArchitecture(city, nodesById);
     const mine = placement.shapes.filter((s) => s.archId.endsWith("@src/service.py"));
-    const xs = [...new Set(mine.map((s) => s.position[0]))];
-    expect(xs.length).toBe(2);
-    for (const x of xs) {
-      expect(x).toBeGreaterThan(30);
-      expect(x).toBeLessThan(34);
+    const spots = new Set(mine.map((s) => `${s.position[0].toFixed(3)},${s.position[2].toFixed(3)}`));
+    expect(spots.size).toBe(2);
+    for (const s of mine) {
+      expect(s.position[0]).toBeGreaterThan(30);
+      expect(s.position[0]).toBeLessThan(34);
+      expect(s.position[2]).toBeGreaterThan(40);
+      expect(s.position[2]).toBeLessThan(44);
     }
   });
 
@@ -222,5 +224,210 @@ describe("layers and selection of architecture elements", () => {
     useCityStore.getState().selectArch("api:GET /a@src/main.py");
     useCityStore.getState().selectArch(null);
     expect(useCityStore.getState().selectedArchId).toBeNull();
+  });
+});
+
+describe("gates never overlap", () => {
+  function cityWithGates(folderSize: number, gates: { file: string; label: string }[]): CityModel {
+    const folder = node("src", "folder", "root", 2, 2, folderSize, folderSize, 1, 1);
+    const files = [
+      node("src/a.py", "file", "src", 10, 10, 4, 4, 2, 6),
+      node("src/b.py", "file", "src", 20, 20, 4, 4, 2, 6),
+    ];
+    return {
+      ...city,
+      nodes: [node("root", "folder", null, 0, 0, 200, 200, 0, 1), folder, ...files],
+      edges: [],
+      architecture: gates.map((g) => arch("api", g.label, g.file)),
+    };
+  }
+
+  function boxes(placement: ReturnType<typeof placeArchitecture>) {
+    const byGate = new Map<string, { x0: number; x1: number; z0: number; z1: number }>();
+    for (const s of placement.shapes) {
+      const box = { x0: s.position[0] - s.scale[0] / 2, x1: s.position[0] + s.scale[0] / 2, z0: s.position[2] - s.scale[2] / 2, z1: s.position[2] + s.scale[2] / 2 };
+      const old = byGate.get(s.archId);
+      byGate.set(s.archId, old ? { x0: Math.min(old.x0, box.x0), x1: Math.max(old.x1, box.x1), z0: Math.min(old.z0, box.z0), z1: Math.max(old.z1, box.z1) } : box);
+    }
+    return [...byGate.entries()];
+  }
+
+  function expectNoOverlap(placement: ReturnType<typeof placeArchitecture>, count: number) {
+    const all = boxes(placement);
+    expect(all).toHaveLength(count);
+    for (let i = 0; i < all.length; i++) {
+      for (let j = i + 1; j < all.length; j++) {
+        const a = all[i][1];
+        const b = all[j][1];
+        const overlap = a.x0 < b.x1 - 1e-9 && b.x0 < a.x1 - 1e-9 && a.z0 < b.z1 - 1e-9 && b.z0 < a.z1 - 1e-9;
+        expect(overlap, `${all[i][0]} overlaps ${all[j][0]}`).toBe(false);
+      }
+    }
+  }
+
+  function expectInsideFolder(placement: ReturnType<typeof placeArchitecture>, folder: CityNode) {
+    const { position, width, depth } = folder.dimensions;
+    for (const [id, box] of boxes(placement)) {
+      expect(box.x0, id).toBeGreaterThanOrEqual(position.x - 1e-9);
+      expect(box.x1, id).toBeLessThanOrEqual(position.x + width + 1e-9);
+      expect(box.z0, id).toBeGreaterThanOrEqual(position.z - 1e-9);
+      expect(box.z1, id).toBeLessThanOrEqual(position.z + depth + 1e-9);
+    }
+  }
+
+  it("keeps twelve routes of one file apart", () => {
+    const gates = Array.from({ length: 12 }, (_, i) => ({ file: "src/a.py", label: `GET /r${i}` }));
+    const model = cityWithGates(40, gates);
+    const placement = placeArchitecture(model, new Map(model.nodes.map((n) => [n.id, n])));
+    expectNoOverlap(placement, 12);
+    expectInsideFolder(placement, model.nodes[1]);
+  });
+
+  it("spreads more routes than one edge can hold over several edges", () => {
+    const gates = Array.from({ length: 30 }, (_, i) => ({ file: i % 2 ? "src/a.py" : "src/b.py", label: `POST /r${i}` }));
+    const model = cityWithGates(40, gates);
+    const placement = placeArchitecture(model, new Map(model.nodes.map((n) => [n.id, n])));
+    expectNoOverlap(placement, 30);
+    expectInsideFolder(placement, model.nodes[1]);
+  });
+
+  it("makes gates narrower instead of overlapping when an edge is crowded", () => {
+    const gates = Array.from({ length: 14 }, (_, i) => ({ file: "src/a.py", label: `GET /n${i}` }));
+    const model = cityWithGates(40, gates);
+    const placement = placeArchitecture(model, new Map(model.nodes.map((n) => [n.id, n])));
+    const widths = boxes(placement).map(([, b]) => Math.max(b.x1 - b.x0, b.z1 - b.z0));
+    expect(Math.min(...widths)).toBeLessThan(GATE.width);
+    expect(Math.min(...widths)).toBeGreaterThanOrEqual(GATE.minWidth - 1e-9);
+  });
+
+  it("keeps gates of neighbouring edges out of the corners", () => {
+    const gates = [
+      { file: "src/a.py", label: "GET /north" },
+      ...Array.from({ length: 16 }, (_, i) => ({ file: "src/a.py", label: `GET /more${i}` })),
+    ];
+    const model = cityWithGates(40, gates);
+    const placement = placeArchitecture(model, new Map(model.nodes.map((n) => [n.id, n])));
+    expectNoOverlap(placement, 17);
+  });
+
+  it("handles a tiny folder with one gate per edge at most", () => {
+    const model = cityWithGates(8, [
+      { file: "src/a.py", label: "GET /a" },
+      { file: "src/a.py", label: "GET /b" },
+      { file: "src/b.py", label: "GET /c" },
+    ]);
+    const placement = placeArchitecture(model, new Map(model.nodes.map((n) => [n.id, n])));
+    expectNoOverlap(placement, 3);
+    for (const shape of placement.shapes) expect(shape.position.every(Number.isFinite)).toBe(true);
+  });
+
+  it("places gates in a stable order", () => {
+    const gates = Array.from({ length: 8 }, (_, i) => ({ file: "src/a.py", label: `GET /s${i}` }));
+    const model = cityWithGates(40, gates);
+    const byId = new Map(model.nodes.map((n) => [n.id, n]));
+    const reversed = { ...model, architecture: [...model.architecture].reverse() };
+    expect(placeArchitecture(reversed, byId).shapes.map((s) => s.position)).toEqual(placeArchitecture(model, byId).shapes.map((s) => s.position));
+  });
+});
+
+describe("roof items never overlap", () => {
+  const kinds = ["database", "server", "external"] as const;
+
+  function roofCity(count: number, width: number, depth: number): CityModel {
+    const file = node("src/big.py", "file", "src", 10, 10, width, depth, 2, 6);
+    return {
+      ...city,
+      nodes: [node("root", "folder", null, 0, 0, 200, 200, 0, 1), node("src", "folder", "root", 2, 2, 100, 100, 1, 1), file],
+      edges: [],
+      architecture: Array.from({ length: count }, (_, i) => arch(kinds[i % 3], `item ${i}`, "src/big.py")),
+    };
+  }
+
+  function footprints(model: CityModel) {
+    const placement = placeArchitecture(model, new Map(model.nodes.map((n) => [n.id, n])));
+    const byItem = new Map<string, { x0: number; x1: number; z0: number; z1: number }>();
+    for (const s of placement.shapes) {
+      const box = { x0: s.position[0] - s.scale[0] / 2, x1: s.position[0] + s.scale[0] / 2, z0: s.position[2] - s.scale[2] / 2, z1: s.position[2] + s.scale[2] / 2 };
+      const old = byItem.get(s.archId);
+      byItem.set(s.archId, old ? { x0: Math.min(old.x0, box.x0), x1: Math.max(old.x1, box.x1), z0: Math.min(old.z0, box.z0), z1: Math.max(old.z1, box.z1) } : box);
+    }
+    return [...byItem.values()];
+  }
+
+  it.each([[2, 4, 4], [3, 4, 4], [6, 3, 6], [9, 4, 4], [20, 5, 5], [40, 2, 2], [7, 10, 2]])(
+    "%i items on a %ix%i roof stay apart and inside",
+    (count, width, depth) => {
+      const boxes = footprints(roofCity(count, width, depth));
+      expect(boxes).toHaveLength(count);
+      for (const b of boxes) {
+        expect(b.x0).toBeGreaterThanOrEqual(10 - 1e-9);
+        expect(b.x1).toBeLessThanOrEqual(10 + width + 1e-9);
+        expect(b.z0).toBeGreaterThanOrEqual(10 - 1e-9);
+        expect(b.z1).toBeLessThanOrEqual(10 + depth + 1e-9);
+      }
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const a = boxes[i];
+          const b = boxes[j];
+          expect(a.x0 < b.x1 - 1e-9 && b.x0 < a.x1 - 1e-9 && a.z0 < b.z1 - 1e-9 && b.z0 < a.z1 - 1e-9, `${i} overlaps ${j}`).toBe(false);
+        }
+      }
+    },
+  );
+
+  it("makes the items smaller when there are more of them", () => {
+    const size = (count: number) => {
+      const [first] = footprints(roofCity(count, 4, 4));
+      return first.x1 - first.x0;
+    };
+    expect(size(30)).toBeLessThan(size(4));
+    expect(size(4)).toBeLessThan(size(1) + 1e-9);
+    expect(size(100)).toBeGreaterThan(0);
+  });
+
+  it("uses the full roof depth, not just one row", () => {
+    const boxes = footprints(roofCity(4, 4, 4));
+    expect(new Set(boxes.map((b) => b.z0.toFixed(3))).size).toBeGreaterThan(1);
+  });
+
+  it("keeps a single item at the middle of the roof", () => {
+    const [box] = footprints(roofCity(1, 4, 4));
+    expect((box.x0 + box.x1) / 2).toBeCloseTo(12);
+    expect((box.z0 + box.z1) / 2).toBeCloseTo(12);
+  });
+});
+
+describe("scrolling and first code view", () => {
+  it("scrolls only as far as needed", async () => {
+    const { scrollTopToCenter, scrollTopToReveal } = await import("../src/city/scroll");
+    expect(scrollTopToReveal(100, 200, 150, 20)).toBe(100);
+    expect(scrollTopToReveal(100, 200, 50, 20)).toBe(50);
+    expect(scrollTopToReveal(100, 200, 330, 40)).toBe(170);
+    expect(scrollTopToReveal(0, 200, -10, 20)).toBe(0);
+    expect(scrollTopToCenter(200, 500, 20)).toBe(410);
+    expect(scrollTopToCenter(200, 10, 20)).toBe(0);
+  });
+
+  it("remembers that code was opened and forgets it for a new city", () => {
+    useCityStore.getState().setCity(city);
+    expect(useCityStore.getState().codeOpened).toBe(false);
+    useCityStore.getState().select("src");
+    expect(useCityStore.getState().codeOpened).toBe(false);
+    useCityStore.getState().select("src/main.py");
+    expect(useCityStore.getState().codeOpened).toBe(true);
+    useCityStore.getState().select(null);
+    useCityStore.getState().select("src");
+    expect(useCityStore.getState().codeOpened).toBe(true);
+    useCityStore.getState().setCity({ ...city });
+    expect(useCityStore.getState().codeOpened).toBe(false);
+  });
+
+  it("selecting an architecture element or highlighting lines opens code too", () => {
+    useCityStore.getState().setCity(city);
+    useCityStore.getState().selectArch("api:GET /a@src/main.py");
+    expect(useCityStore.getState().codeOpened).toBe(true);
+    useCityStore.getState().setCity({ ...city });
+    useCityStore.getState().highlightLines("src/db.py", 1, 2);
+    expect(useCityStore.getState().codeOpened).toBe(true);
   });
 });

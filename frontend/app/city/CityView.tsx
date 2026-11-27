@@ -11,6 +11,7 @@ import {
 } from "../../src/city/paneLayout";
 import { useCityStore } from "../../src/city/store";
 import { CodeViewer } from "./CodeViewer";
+import { ScanSummary } from "./ScanSummary";
 import { Sidebar } from "./Sidebar";
 
 const CityScene = dynamic(() => import("./CityScene"), { ssr: false });
@@ -84,6 +85,7 @@ export function CityView() {
             <div className="resize-handle bottom" role="separator" aria-label="Resize height" onPointerDown={startDrag("y")} />
             <div className="resize-handle corner" role="separator" aria-label="Resize" onPointerDown={startDrag("xy")} />
           </div>
+          <ScanSummary style={beside ? { flex: "1 1 0", minWidth: 0 } : { flex: "1 1 100%" }} />
           <CodeViewer
             height={beside ? height : belowHeight}
             style={beside ? { flex: "1 1 0", minWidth: 0 } : { flex: "1 1 100%" }}

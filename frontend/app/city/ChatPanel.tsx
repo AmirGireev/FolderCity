@@ -15,14 +15,14 @@ export function ChatPanel() {
   const status = useChatStore((state) => state.status);
   const ask = useChatStore((state) => state.ask);
   const [question, setQuestion] = useState("");
-  const listEnd = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     void useChatStore.getState().loadStatus();
   }, [city]);
 
   useEffect(() => {
-    listEnd.current?.scrollIntoView?.({ block: "nearest" });
+    if (list.current) list.current.scrollTop = list.current.scrollHeight;
   }, [messages, busy]);
 
   function submit(event: FormEvent) {
@@ -38,7 +38,7 @@ export function ChatPanel() {
       {status && !status.ai && (
         <p className="note">No AI model is set up on the server. You get a plain search with the best places.</p>
       )}
-      <div className="chat-messages" aria-live="polite">
+      <div className="chat-messages" aria-live="polite" ref={list}>
         {messages.length === 0 && <p className="note">Ask for example: “Where is the email validated?”</p>}
         {messages.map((message) => (
           <div key={message.id} className={`chat-message ${message.role}${message.error ? " error" : ""}`}>
@@ -57,7 +57,6 @@ export function ChatPanel() {
           </div>
         ))}
         {busy !== "idle" && <p className="note">{BUSY_TEXT[busy]}</p>}
-        <div ref={listEnd} />
       </div>
       <form onSubmit={submit} className="chat-form">
         <input

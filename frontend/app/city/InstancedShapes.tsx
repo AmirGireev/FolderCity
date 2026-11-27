@@ -11,6 +11,7 @@ import { useCityStore } from "../../src/city/store";
 const helper = new Object3D();
 const tint = new Color();
 const CLICK_DRAG_LIMIT = 4;
+const SELECTED_GROWTH = 0.15;
 
 export function InstancedShapes({ shapes, geometry }: { shapes: ArchShape[]; geometry: ShapeKind }) {
   const meshRef = useRef<InstancedMesh>(null);
@@ -21,15 +22,16 @@ export function InstancedShapes({ shapes, geometry }: { shapes: ArchShape[]; geo
     const mesh = meshRef.current;
     if (!mesh) return;
     shapes.forEach((shape, index) => {
+      const grow = shape.archId === selectedArchId ? SELECTED_GROWTH : 0;
       helper.position.set(...shape.position);
-      helper.scale.set(...shape.scale);
+      helper.scale.set(shape.scale[0] + grow, shape.scale[1] + grow, shape.scale[2] + grow);
       helper.updateMatrix();
       mesh.setMatrixAt(index, helper.matrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
     mesh.computeBoundingSphere();
     invalidate();
-  }, [shapes, invalidate]);
+  }, [shapes, selectedArchId, invalidate]);
 
   useLayoutEffect(() => {
     const mesh = meshRef.current;

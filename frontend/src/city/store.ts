@@ -27,6 +27,7 @@ interface CityState {
   nodesById: Map<string, CityNode>;
   selectedId: string | null;
   selectedArchId: string | null;
+  codeOpened: boolean;
   archById: ReadonlyMap<string, ArchitectureNode>;
   hoverId: string | null;
   expandedIds: ReadonlySet<string>;
@@ -55,6 +56,7 @@ export const useCityStore = create<CityState>((set, get) => ({
   nodesById: new Map(),
   selectedId: null,
   selectedArchId: null,
+  codeOpened: false,
   archById: new Map(),
   hoverId: null,
   expandedIds: new Set(),
@@ -73,6 +75,7 @@ export const useCityStore = create<CityState>((set, get) => ({
       nodesById: new Map((city?.nodes ?? []).map((node) => [node.id, node])),
       selectedId: null,
       selectedArchId: null,
+      codeOpened: false,
       archById: new Map((city?.architecture ?? []).map((item) => [item.id, item])),
       hoverId: null,
       expandedIds: new Set(city ? [city.rootId] : []),
@@ -90,8 +93,10 @@ export const useCityStore = create<CityState>((set, get) => ({
   select: (id) =>
     set((state) => {
       if (id === null || !state.nodesById.has(id)) return { selectedId: null, selectedArchId: null, highlight: null };
+      const kind = state.nodesById.get(id)?.type;
       return {
         selectedId: id,
+        codeOpened: state.codeOpened || kind === "file" || kind === "empty_file",
         selectedArchId: id === state.selectedId ? state.selectedArchId : null,
         highlight: state.highlight?.fileId === id ? state.highlight : null,
         expandedIds: new Set([...state.expandedIds, ...ancestorIds(id, state.nodesById)]),

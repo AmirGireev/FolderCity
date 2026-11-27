@@ -6,6 +6,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { scrollTopToCenter } from "../../src/city/scroll";
 import { clampRange, highlightField, languageExtension, languageNameFor, setHighlight } from "../../src/city/codeHighlight";
 import { useCityStore } from "../../src/city/store";
 
@@ -41,9 +42,13 @@ function CodeEditor({ path, content }: { path: string; content: string }) {
     const editor = view.current;
     if (!editor) return;
     const range = highlight ? clampRange(highlight.startLine, highlight.endLine, editor.state.doc.lines) : null;
-    editor.dispatch({
-      effects: [setHighlight.of(range), ...(range ? [EditorView.scrollIntoView(editor.state.doc.line(range.startLine).from, { y: "center" })] : [])],
+    editor.dispatch({ effects: setHighlight.of(range) });
+    if (!range) return;
+    const frame = requestAnimationFrame(() => {
+      const block = editor.lineBlockAt(editor.state.doc.line(range.startLine).from);
+      editor.scrollDOM.scrollTop = scrollTopToCenter(editor.scrollDOM.clientHeight, block.top, block.height);
     });
+    return () => cancelAnimationFrame(frame);
   }, [highlight, path, content]);
 
   return <div className="code-editor" ref={host} data-testid="code-editor" />;

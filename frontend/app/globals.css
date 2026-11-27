@@ -176,35 +176,6 @@ input[type="checkbox"] {
   font-size: 1.1rem;
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0;
-  padding: 0.2rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--panel);
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.status .dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--warn);
-}
-
-.status[data-status="reachable"] .dot {
-  background: var(--ok);
-  box-shadow: 0 0 8px var(--ok);
-}
-
-.status[data-status="not reachable"] .dot {
-  background: var(--danger);
-}
-
 .card {
   padding: 1.5rem;
   border: 1px solid var(--border);
@@ -882,4 +853,69 @@ input[type="checkbox"] {
 .code-empty {
   padding: 1rem;
   color: var(--muted);
+}
+
+/* ---------- folder tree icons and scan summary ---------- */
+
+.tree-icon {
+  flex: none;
+  margin: 0 0.35rem 0 0.1rem;
+}
+
+.tree-icon.folder {
+  color: #e3b341;
+}
+
+.tree-icon.empty {
+  opacity: 0.55;
+}
+
+.tree-row.is-folder .tree-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tree-row.is-file .tree-name {
+  color: #c4cdd6;
+}
+
+.tree-count {
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.scan-summary {
+  min-width: 0;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+}
+
+.scan-summary h3 {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.scan-summary h3 strong {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+.scan-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  margin: 0.6rem 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+}
+
+.scan-summary .hint {
+  margin: 0.4rem 0 0;
 }
