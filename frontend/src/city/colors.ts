@@ -14,6 +14,18 @@ const EXTENSION_COLORS: Record<string, string> = {
   ".yml": "#c7587a",
   ".yaml": "#c7587a",
   ".sql": "#d98a2b",
+  ".cs": "#2e9e4f",
+  ".java": "#d9572b",
+  ".c": "#5f6f8f",
+  ".h": "#7d8aa8",
+  ".cpp": "#c0407a",
+  ".hpp": "#d46a9a",
+  ".go": "#2ec4c9",
+  ".rs": "#b5651d",
+  ".php": "#7a86c8",
+  ".rb": "#cc3344",
+  ".kt": "#8f5fd6",
+  ".swift": "#f0793a",
 };
 
 const FALLBACK_COLOR = "#9aa5b1";

@@ -6,6 +6,7 @@ import {
   highlightField,
   highlightedLines,
   languageNameFor,
+  languageExtension,
   lineDecorations,
   setHighlight,
 } from "../src/city/codeHighlight";
@@ -85,6 +86,8 @@ describe("languages", () => {
   it.each([
     ["a.py", "python"], ["a.ts", "typescript"], ["a.tsx", "tsx"], ["a.js", "javascript"], ["a.jsx", "jsx"],
     ["a.json", "json"], ["README.md", "markdown"], ["a.css", "css"], ["a.html", "html"],
+    ["Goal.cs", "csharp"], ["A.java", "java"], ["a.c", "c"], ["a.h", "cpp"], ["a.hpp", "cpp"],
+    ["lib.rs", "text"], ["main.go", "text"], ["index.php", "text"], ["app.rb", "text"],
     ["Makefile", "text"], [".gitignore", "text"], ["dir.v2/file", "text"],
   ])("%s is %s", (path, expected) => {
     expect(languageNameFor(path)).toBe(expected);
@@ -134,5 +137,20 @@ describe("highlightLines action", () => {
   it("keeps the file contents given with the city", () => {
     useCityStore.getState().setCity(city, new Map([["src/main.py", "print(1)\n"]]));
     expect(useCityStore.getState().contents.get("src/main.py")).toBe("print(1)\n");
+  });
+});
+
+describe("syntax colors for every supported language", () => {
+  it.each(["a.cs", "A.java", "a.c", "a.cpp", "a.py", "a.ts"])(
+    "%s has a CodeMirror language",
+    (path) => {
+      const state = EditorState.create({ doc: "x", extensions: [languageExtension(path)] });
+      expect(state.doc.toString()).toBe("x");
+      expect(languageExtension(path)).not.toEqual([]);
+    },
+  );
+
+  it("unknown files have no language extension", () => {
+    expect(languageExtension("notes.txt")).toEqual([]);
   });
 });

@@ -4,6 +4,10 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Optional
 
+import tree_sitter_c
+import tree_sitter_c_sharp
+import tree_sitter_cpp
+import tree_sitter_java
 import tree_sitter_javascript
 import tree_sitter_python
 import tree_sitter_typescript
@@ -19,7 +23,20 @@ LANGUAGE_BY_EXTENSION = {
     ".mts": "typescript",
     ".cts": "typescript",
     ".tsx": "tsx",
+    ".cs": "csharp",
+    ".java": "java",
+    ".c": "c",
+    ".h": "cpp",
+    ".cc": "cpp",
+    ".cpp": "cpp",
+    ".cxx": "cpp",
+    ".c++": "cpp",
+    ".hh": "cpp",
+    ".hpp": "cpp",
+    ".hxx": "cpp",
 }
+
+JAVASCRIPT_FAMILY = ("javascript", "typescript", "tsx")
 
 
 def language_of(path: str) -> Optional[str]:
@@ -35,6 +52,10 @@ def _parser(language: str) -> Parser:
         "javascript": tree_sitter_javascript.language,
         "typescript": tree_sitter_typescript.language_typescript,
         "tsx": tree_sitter_typescript.language_tsx,
+        "csharp": tree_sitter_c_sharp.language,
+        "java": tree_sitter_java.language,
+        "c": tree_sitter_c.language,
+        "cpp": tree_sitter_cpp.language,
     }
     return Parser(Language(grammars[language]()))
 

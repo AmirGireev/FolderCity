@@ -5,6 +5,10 @@ import { json } from "@codemirror/lang-json";
 import { markdown } from "@codemirror/lang-markdown";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
+import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
+import { StreamLanguage } from "@codemirror/language";
+import { csharp } from "@codemirror/legacy-modes/mode/clike";
 import { StateEffect, StateField, type Extension, type Text } from "@codemirror/state";
 import { Decoration, EditorView, type DecorationSet } from "@codemirror/view";
 
@@ -60,6 +64,8 @@ export function languageNameFor(path: string): string {
     ".py": "python", ".js": "javascript", ".mjs": "javascript", ".cjs": "javascript", ".jsx": "jsx",
     ".ts": "typescript", ".mts": "typescript", ".cts": "typescript", ".tsx": "tsx",
     ".json": "json", ".md": "markdown", ".css": "css", ".html": "html",
+    ".cs": "csharp", ".java": "java", ".c": "c", ".h": "cpp", ".cc": "cpp", ".cpp": "cpp", ".cxx": "cpp",
+    ".hh": "cpp", ".hpp": "cpp", ".hxx": "cpp",
   }; // prettier-ignore
   return names[extension] ?? "text";
 }
@@ -75,6 +81,10 @@ export function languageExtension(path: string): Extension {
     case "markdown": return markdown();
     case "css": return css();
     case "html": return html();
+    case "csharp": return StreamLanguage.define(csharp);
+    case "java": return java();
+    case "c": return cpp();
+    case "cpp": return cpp();
     default: return [];
   }
 }

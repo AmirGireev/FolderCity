@@ -6,7 +6,8 @@ from typing import Optional
 from tree_sitter import Node
 
 from ..models import Symbol
-from .parsing import language_of, lines_of, parse, text_of
+from .parsing import JAVASCRIPT_FAMILY, language_of, lines_of, parse, text_of
+from .symbols_generic import generic_symbols
 
 MAX_DEPTH = 200
 JS_CLASS_TYPES = {"class_declaration", "abstract_class_declaration", "class"}
@@ -112,5 +113,10 @@ def extract_symbols(path: str, content: str) -> list[Symbol]:
     if language is None:
         return []
     root, source = parse(language, content)
-    symbols = _python_symbols(root, source, path) if language == "python" else _javascript_symbols(root, source, path)
+    if language == "python":
+        symbols = _python_symbols(root, source, path)
+    elif language in JAVASCRIPT_FAMILY:
+        symbols = _javascript_symbols(root, source, path)
+    else:
+        symbols = generic_symbols(language, root, source, path)
     return sorted(symbols, key=lambda s: (s.startLine, s.endLine, s.name))

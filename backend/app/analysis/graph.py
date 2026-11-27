@@ -5,14 +5,19 @@ import networkx as nx
 
 from ..models import ImportEdge
 from ..scan.model import ScanFile
-from .import_refs import extract_import_refs
+from .import_refs import extract_import_refs, extract_namespaces
 from .parsing import language_of
 from .resolve import Resolver
 
 
 def build_import_graph(files: list[ScanFile]) -> nx.DiGraph:
     graph: nx.DiGraph = nx.DiGraph()
-    resolver = Resolver(f.path for f in files)
+    namespaces: dict[str, list[str]] = {}
+    for file in sorted(files, key=lambda f: f.path):
+        if file.content is not None and language_of(file.path) in ("csharp", "java"):
+            for name in extract_namespaces(file.path, file.content):
+                namespaces.setdefault(name, []).append(file.path)
+    resolver = Resolver((f.path for f in files), namespaces)
     for file in files:
         graph.add_node(file.path)
     for file in sorted(files, key=lambda f: f.path):
