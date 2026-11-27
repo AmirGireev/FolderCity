@@ -21,6 +21,7 @@ export function BackendStatus() {
 
   return (
     <p className="status" data-status={status}>
+      <span className="dot" aria-hidden="true" />
       Backend: {status}
     </p>
   );

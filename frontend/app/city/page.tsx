@@ -11,8 +11,13 @@ export default function CityPage() {
   return (
     <div className="city-page">
       <header className="city-header">
-        <Link href="/">← Scan another folder</Link>
-        {city && <strong>{city.nodes.find((node) => node.id === city.rootId)?.name}</strong>}
+        <Link href="/" className="brand">
+          Folder<span>City</span>
+        </Link>
+        {city && <strong className="root-name">{city.nodes.find((node) => node.id === city.rootId)?.name}</strong>}
+        <Link href="/" className="back">
+          ← Scan another folder
+        </Link>
       </header>
       {city ? (
         <CityView />

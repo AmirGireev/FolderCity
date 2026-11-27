@@ -67,7 +67,7 @@ export function ChatPanel() {
           aria-label="Question"
           onChange={(event) => setQuestion(event.target.value)}
         />
-        <button type="submit" disabled={busy !== "idle" || question.trim() === ""}>
+        <button type="submit" className="btn primary" disabled={busy !== "idle" || question.trim() === ""}>
           Ask
         </button>
       </form>

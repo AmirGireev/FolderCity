@@ -53,7 +53,7 @@ export function Inspector() {
           <ArchitectureInfo fileId={node.id} />
         </>
       )}
-      <button type="button" onClick={() => flyTo(node.id)}>
+      <button type="button" className="btn small" onClick={() => flyTo(node.id)}>
         Fly to
       </button>
     </section>

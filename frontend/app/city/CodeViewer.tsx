@@ -86,7 +86,7 @@ export function CodeViewer({ height, style }: { height?: number; style?: CSSProp
             ))}
           </select>
         )}
-        <button type="button" onClick={() => select(null)}>
+        <button type="button" className="btn small" onClick={() => select(null)}>
           Close
         </button>
       </header>

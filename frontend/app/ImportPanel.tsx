@@ -4,12 +4,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type DragEvent } from "react";
-import {
-  directoryFromDrop,
-  fromFileList,
-  pickDirectory,
-  supportsDirectoryPicker,
-} from "../src/scan/adapters";
+import { directoryFromDrop, pickDirectory, supportsDirectoryPicker } from "../src/scan/adapters";
 import { fetchCity } from "../src/city/api";
 import { useCityStore } from "../src/city/store";
 import { scanTree, type FsDirectory } from "../src/scan/scanTree";
@@ -18,9 +13,6 @@ import type { ScanResult } from "../src/types/scan";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const PREVIEW_CHARS = 20_000;
-
-
-const directoryInputProps = { webkitdirectory: "", directory: "" } as Record<string, string>;
 
 export function ImportPanel() {
   const router = useRouter();
@@ -73,11 +65,6 @@ export function ImportPanel() {
     void run("Drag-and-drop", () => scanDirectory(dir, "Please drop exactly one folder (no single files)."));
   }
 
-  function onFallback(files: FileList | null) {
-    const dir = files ? fromFileList(Array.from(files)) : null;
-    void run("Fallback (no empty folders)", () => scanDirectory(dir, "That was not a folder."));
-  }
-
   function onGithub() {
     void run("GitHub", async () => {
       const response = await fetch(`${API_URL}/import/github`, {
@@ -110,79 +97,105 @@ export function ImportPanel() {
 
   return (
     <section className="import" aria-busy={busy}>
-      <h2>Scan a folder</h2>
+      <div className="card">
+        <h2>Scan a folder</h2>
+        <p className="hint">Folders are read in your browser. Secrets, build folders and lock files are skipped.</p>
 
-      <div className="import-options">
-        {canPick && (
-          <button type="button" onClick={onPick} disabled={busy}>
-            Pick a folder
-          </button>
-        )}
+        <div className="import-options">
+          {canPick && (
+            <button type="button" className="btn primary big" onClick={onPick} disabled={busy}>
+              Pick a folder
+            </button>
+          )}
 
-        <div
-          className={`dropzone${dragging ? " dragging" : ""}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={onDrop}
-          data-testid="dropzone"
-        >
-          Drag a folder here
+          <div
+            className={`dropzone${dragging ? " dragging" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
+            data-testid="dropzone"
+          >
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path
+                d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.2l1.8 2H19.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>Drag a folder here</span>
+          </div>
+
+          <div className="divider">
+            <span>or a public GitHub repo</span>
+          </div>
+
+          <form
+            className="github"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onGithub();
+            }}
+          >
+            <input
+              type="url"
+              placeholder="https://github.com/owner/repo"
+              aria-label="GitHub repo URL"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              required
+            />
+            <button type="submit" className="btn primary" disabled={busy}>
+              Scan GitHub repo
+            </button>
+          </form>
         </div>
 
-        <label className="fallback">
-          Fallback (no empty folders):{" "}
-          <input type="file" {...directoryInputProps} onChange={(e) => onFallback(e.target.files)} disabled={busy} />
-        </label>
-
-        <form
-          className="github"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onGithub();
-          }}
-        >
-          <input
-            type="url"
-            placeholder="https://github.com/owner/repo"
-            value={githubUrl}
-            onChange={(e) => setGithubUrl(e.target.value)}
-            required
-          />
-          <button type="submit" disabled={busy}>
-            Scan GitHub repo
-          </button>
-        </form>
+        {busy && (
+          <p className="busy">
+            <span className="spinner" aria-hidden="true" /> Scanning…
+          </p>
+        )}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
 
-      {busy && <p>Scanning…</p>}
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-
       {scan && summary && (
-        <div className="result" data-testid="result">
+        <div className="card result" data-testid="result">
           <h3>
             “{scan.rootName}” scanned <small>({source})</small>
           </h3>
-          <ul>
-            <li>{summary.folders} folders, {summary.emptyFolders} of them empty</li>
-            <li>{summary.files} files, {summary.emptyFiles} of them empty</li>
-            <li>{summary.withoutContent} files without content (images, binary files, too large)</li>
+          <ul className="stats">
+            <li>
+              <strong>{summary.folders}</strong> folders, {summary.emptyFolders} of them empty
+            </li>
+            <li>
+              <strong>{summary.files}</strong> files, {summary.emptyFiles} of them empty
+            </li>
+            <li>
+              <strong>{summary.withoutContent}</strong> files without content (images, binary files, too large)
+            </li>
           </ul>
           {summary.truncated && (
-            <p className="warning">
-              Not everything was scanned: the limit is 600 files (and 50 folder levels).
-            </p>
+            <p className="warning">Not everything was scanned: the limit is 600 files (and 50 folder levels).</p>
           )}
-          {hasCity && <p><Link href={`/city${typeof window === "undefined" ? "" : window.location.search}`}>Open the city again</Link></p>}
-          <button type="button" onClick={download}>
-            Download JSON
-          </button>
+          <div className="result-actions">
+            {hasCity && (
+              <Link className="btn primary" href={`/city${typeof window === "undefined" ? "" : window.location.search}`}>
+                Open the city again
+              </Link>
+            )}
+            <button type="button" className="btn" onClick={download}>
+              Download JSON
+            </button>
+          </div>
           <details>
             <summary>View JSON</summary>
             <pre>{json.length > PREVIEW_CHARS ? json.slice(0, PREVIEW_CHARS) + "\n… (shortened)" : json}</pre>
