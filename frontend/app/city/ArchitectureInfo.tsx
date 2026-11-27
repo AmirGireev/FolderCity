@@ -7,7 +7,7 @@ import { architectureColor } from "../../src/city/colors";
 import { findDataPaths } from "../../src/city/dataPaths";
 import { useCityStore } from "../../src/city/store";
 
-export function ArchitectureInfo({ fileId }: { fileId: string }) {
+export function ArchitectureInfo({ fileId, extended }: { fileId: string; extended: boolean }) {
   const city = useCityStore((state) => state.city);
   const selectedArchId = useCityStore((state) => state.selectedArchId);
   const archById = useCityStore((state) => state.archById);
@@ -22,11 +22,12 @@ export function ArchitectureInfo({ fileId }: { fileId: string }) {
     [city, selected],
   );
 
-  if (inFile.length === 0 && !selected) return null;
+  const showList = extended && inFile.length > 0;
+  if (!showList && !selected) return null;
 
   return (
     <div className="arch-info" data-testid="arch-info">
-      {inFile.length > 0 && (
+      {showList && (
         <>
           <h4>Architecture in this file ({inFile.length})</h4>
           <ul>

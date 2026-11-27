@@ -1,4 +1,4 @@
-// Scrolls only the container that holds an element, never the whole page.
+// Scrolls only the list that holds an element, never the sidebar or the page.
 export function scrollTopToReveal(
   scrollTop: number,
   containerHeight: number,
@@ -14,17 +14,9 @@ export function scrollTopToCenter(containerHeight: number, elementTop: number, e
   return Math.max(0, elementTop - containerHeight / 2 + elementHeight / 2);
 }
 
-export function nearestScrollable(element: HTMLElement | null): HTMLElement | null {
-  for (let current = element?.parentElement ?? null; current; current = current.parentElement) {
-    const overflow = getComputedStyle(current).overflowY;
-    if ((overflow === "auto" || overflow === "scroll") && current.scrollHeight > current.clientHeight) return current;
-  }
-  return null;
-}
-
-export function revealInContainer(element: HTMLElement | null): void {
-  const container = nearestScrollable(element);
-  if (!element || !container) return;
+export function revealInContainer(element: HTMLElement | null, containerSelector = ".collapsible-body"): void {
+  const container = element?.closest<HTMLElement>(containerSelector) ?? null;
+  if (!element || !container || container.scrollHeight <= container.clientHeight) return;
   const containerRect = container.getBoundingClientRect();
   const rect = element.getBoundingClientRect();
   const top = rect.top - containerRect.top + container.scrollTop;

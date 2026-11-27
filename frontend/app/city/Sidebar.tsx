@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useCityStore } from "../../src/city/store";
 import { ChatPanel } from "./ChatPanel";
 import { Collapsible } from "./Collapsible";
 import { FolderTree } from "./FolderTree";
@@ -10,6 +11,8 @@ import { LayerPanel } from "./LayerPanel";
 
 export function Sidebar() {
   const [hidden, setHidden] = useState(false);
+  const extended = useCityStore((state) => state.extendedDetails);
+  const setExtended = useCityStore((state) => state.setExtendedDetails);
 
   if (hidden) {
     return (
@@ -26,7 +29,15 @@ export function Sidebar() {
       <button type="button" className="sidebar-toggle" aria-label="Hide sidebar" onClick={() => setHidden(true)}>
         »
       </button>
-      <Collapsible title="Details">
+      <Collapsible
+        title="Details"
+        headerExtra={
+          <label className="ext-toggle">
+            <input type="checkbox" checked={extended} onChange={(event) => setExtended(event.target.checked)} />
+            Extended details
+          </label>
+        }
+      >
         <Inspector />
       </Collapsible>
       <Collapsible title="Assistant">

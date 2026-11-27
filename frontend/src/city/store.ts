@@ -28,9 +28,11 @@ interface CityState {
   selectedId: string | null;
   selectedArchId: string | null;
   codeOpened: boolean;
+  extendedDetails: boolean;
   archById: ReadonlyMap<string, ArchitectureNode>;
   hoverId: string | null;
   expandedIds: ReadonlySet<string>;
+  autoExpandedIds: ReadonlySet<string>;
   collapseIndex: CollapseIndex | null;
   collapsedIds: ReadonlySet<string>;
   contents: ReadonlyMap<string, string | null>;
@@ -46,6 +48,7 @@ interface CityState {
   hover: (id: string | null) => void;
   toggleExpanded: (id: string) => void;
   highlightLines: (fileId: string, startLine: number, endLine: number) => void;
+  setExtendedDetails: (on: boolean) => void;
   setCollapsed: (ids: ReadonlySet<string>) => void;
   setLayer: (layer: LayerKey, on: boolean) => void;
   flyTo: (nodeId: string) => void;
@@ -57,9 +60,11 @@ export const useCityStore = create<CityState>((set, get) => ({
   selectedId: null,
   selectedArchId: null,
   codeOpened: false,
+  extendedDetails: false,
   archById: new Map(),
   hoverId: null,
   expandedIds: new Set(),
+  autoExpandedIds: new Set(),
   collapseIndex: null,
   collapsedIds: new Set(),
   contents: new Map(),
@@ -79,6 +84,7 @@ export const useCityStore = create<CityState>((set, get) => ({
       archById: new Map((city?.architecture ?? []).map((item) => [item.id, item])),
       hoverId: null,
       expandedIds: new Set(city ? [city.rootId] : []),
+      autoExpandedIds: new Set(),
       collapseIndex: city ? buildCollapseIndex(city) : null,
       collapsedIds: new Set(),
       contents: contents ?? new Map(),
@@ -94,12 +100,26 @@ export const useCityStore = create<CityState>((set, get) => ({
     set((state) => {
       if (id === null || !state.nodesById.has(id)) return { selectedId: null, selectedArchId: null, highlight: null };
       const kind = state.nodesById.get(id)?.type;
+      const keep = new Set([id, ...ancestorIds(id, state.nodesById)]);
+      const expanded = new Set(state.expandedIds);
+      const auto = new Set<string>();
+      for (const opened of state.autoExpandedIds) {
+        if (keep.has(opened)) auto.add(opened);
+        else expanded.delete(opened);
+      }
+      for (const ancestor of ancestorIds(id, state.nodesById)) {
+        if (!expanded.has(ancestor)) {
+          expanded.add(ancestor);
+          auto.add(ancestor);
+        }
+      }
       return {
         selectedId: id,
         codeOpened: state.codeOpened || kind === "file" || kind === "empty_file",
         selectedArchId: id === state.selectedId ? state.selectedArchId : null,
         highlight: state.highlight?.fileId === id ? state.highlight : null,
-        expandedIds: new Set([...state.expandedIds, ...ancestorIds(id, state.nodesById)]),
+        expandedIds: expanded,
+        autoExpandedIds: auto,
       };
     }),
 
@@ -125,7 +145,9 @@ export const useCityStore = create<CityState>((set, get) => ({
     set((state) => {
       const next = new Set(state.expandedIds);
       if (!next.delete(id)) next.add(id);
-      return { expandedIds: next };
+      const auto = new Set(state.autoExpandedIds);
+      auto.delete(id);
+      return { expandedIds: next, autoExpandedIds: auto };
     }),
 
   highlightLines: (fileId, startLine, endLine) => {
@@ -136,6 +158,8 @@ export const useCityStore = create<CityState>((set, get) => ({
     const high = Math.max(low, startLine, endLine);
     set((state) => ({ highlight: { fileId, startLine: low, endLine: high, seq: (state.highlight?.seq ?? 0) + 1 } }));
   },
+
+  setExtendedDetails: (on) => set({ extendedDetails: on }),
 
   setCollapsed: (ids) => set({ collapsedIds: ids }),
 

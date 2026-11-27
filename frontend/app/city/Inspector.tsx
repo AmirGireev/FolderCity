@@ -9,6 +9,7 @@ export function Inspector() {
   const node = useCityStore((state) => (state.selectedId ? state.nodesById.get(state.selectedId) : undefined));
   const flyTo = useCityStore((state) => state.flyTo);
   const relations = useCityStore((state) => state.relations);
+  const extended = useCityStore((state) => state.extendedDetails);
   const selectAndFly = useCityStore((state) => state.selectAndFly);
 
   if (!node) {
@@ -46,13 +47,13 @@ export function Inspector() {
           </>
         )}
       </dl>
-      {!isFolder && (
+      {!isFolder && extended && (
         <>
           <RelationList title="Imports" ids={imports.map((edge) => edge.target)} onPick={selectAndFly} />
           <RelationList title="Imported by" ids={importedBy.map((edge) => edge.source)} onPick={selectAndFly} />
-          <ArchitectureInfo fileId={node.id} />
         </>
       )}
+      {!isFolder && <ArchitectureInfo fileId={node.id} extended={extended} />}
       <button type="button" className="btn small" onClick={() => flyTo(node.id)}>
         Fly to
       </button>

@@ -525,7 +525,27 @@ input[type="checkbox"] {
 }
 
 .collapsible.open.grow {
-  flex: 1 0 14rem;
+  flex: none;
+}
+
+.collapsible-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.8rem;
+}
+
+.ext-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.ext-toggle:hover {
+  color: var(--text);
 }
 
 .collapsible-header {
@@ -552,8 +572,7 @@ input[type="checkbox"] {
 }
 
 .collapsible.grow .collapsible-body {
-  flex: 1;
-  min-height: 0;
+  max-height: 26rem;
   overflow: auto;
 }
 
