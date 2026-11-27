@@ -14,13 +14,14 @@ from .treemap import Rect, squarify
 ROOT_ID = "."
 MAX_ENTRIES = 20_000
 
-PAD = 1.0
-GAP = 0.4
-PLATFORM_HEIGHT = 0.5
+PAD = 2.0
+GAP = 0.6
+FOLDER_GAP = 2.5
+PLATFORM_HEIGHT = 1.0
 EMPTY_FILE_HEIGHT = 0.1
 MIN_BUILDING_HEIGHT = 1.0
-MAX_BUILDING_HEIGHT = 60.0
-HEIGHT_PER_LINE = 0.1
+MAX_BUILDING_HEIGHT = 40.0
+HEIGHT_SQRT_SCALE = 0.4
 FILE_BASE_AREA = 4.0
 FILE_SIZE_FACTOR = 0.25
 EMPTY_FOLDER_AREA = 9.0
@@ -60,7 +61,7 @@ class _Entry:
             return 0.0
         if kind == "empty_file":
             return EMPTY_FILE_HEIGHT
-        return min(MAX_BUILDING_HEIGHT, max(MIN_BUILDING_HEIGHT, self.lines * HEIGHT_PER_LINE))
+        return min(MAX_BUILDING_HEIGHT, MIN_BUILDING_HEIGHT + HEIGHT_SQRT_SCALE * math.sqrt(self.lines))
 
 
 def _split_path(path: str) -> list[str]:
@@ -133,14 +134,16 @@ def _shrink(rect: Rect, amount: float) -> Rect:
 
 
 def _metrics(entry: _Entry) -> Metrics:
+    depth = len(entry.path.split("/")) if entry.path else 0
     if entry.file is None:
-        return Metrics(fileCount=entry.file_count, sizeBytes=entry.size_bytes)
+        return Metrics(fileCount=entry.file_count, sizeBytes=entry.size_bytes, depth=depth)
     extension = extension_of(entry.name)
     return Metrics(
         sizeBytes=entry.size_bytes,
         lines=entry.lines,
         extension=extension,
         language=language_for(extension),
+        depth=depth,
     )
 
 
@@ -167,7 +170,7 @@ def _place(entry: _Entry, rect: Rect, base_y: float, parent_id: Optional[str], o
     ordered = sorted(entry.children, key=lambda c: (-c.area, c.name))
     tiles = squarify([c.area for c in ordered], _shrink(rect, PAD))
     for child, tile in zip(ordered, tiles):
-        _place(child, _shrink(tile, GAP / 2), base_y + entry.height, node_id, out)
+        _place(child, _shrink(tile, (GAP if child.is_file else FOLDER_GAP) / 2), base_y + entry.height, node_id, out)
 
 
 def build_city(scan: ScanResult) -> CityModel:

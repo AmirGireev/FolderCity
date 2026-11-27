@@ -2,9 +2,9 @@
   "description": "Shared scan rules. Frontend (TypeScript) and backend (Python) keep copies of them; tests in both languages check that the copies match this file.",
   "skipDirectories": ["node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__"],
   "skipFiles": {
-    "exact": [".env"],
+    "exact": [".env", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "bun.lockb"],
     "prefixes": [".env."],
-    "suffixes": [".env"]
+    "suffixes": [".env", ".lock"]
   },
   "binaryExtensions": [
     ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".tif", ".tiff", ".avif", ".heic", ".psd",
@@ -15,7 +15,7 @@
   ],
   "limits": {
     "maxFileBytes": 1048576,
-    "maxFiles": 400,
+    "maxFiles": 600,
     "maxDepth": 50
   },
   "whitespace": " \t\n\r\f\u000b"

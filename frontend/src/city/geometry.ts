@@ -48,3 +48,23 @@ export function outlineSegments(node: CityNode): number[] {
 export function distanceBetween(a: Vec3, b: Vec3): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }
+
+export function boxEdgeSegments(node: CityNode, minHeight = 0): number[] {
+  const { position, width, depth, height } = node.dimensions;
+  const x0 = position.x;
+  const x1 = position.x + width;
+  const y0 = position.y;
+  const y1 = position.y + Math.max(height, minHeight);
+  const z0 = position.z;
+  const z1 = position.z + depth;
+  const corners: Vec3[] = [
+    [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1],
+    [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1],
+  ]; // prettier-ignore
+  const edges = [
+    [0, 1], [1, 2], [2, 3], [3, 0],
+    [4, 5], [5, 6], [6, 7], [7, 4],
+    [0, 4], [1, 5], [2, 6], [3, 7],
+  ]; // prettier-ignore
+  return edges.flatMap(([a, b]) => [...corners[a], ...corners[b]]);
+}

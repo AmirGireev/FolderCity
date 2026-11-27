@@ -3,9 +3,11 @@ export const SKIP_DIRECTORIES: readonly string[] = [
   "node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__",
 ];
 
-export const SKIP_FILE_EXACT: readonly string[] = [".env"];
+export const SKIP_FILE_EXACT: readonly string[] = [
+  ".env", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "bun.lockb",
+];
 export const SKIP_FILE_PREFIXES: readonly string[] = [".env."];
-export const SKIP_FILE_SUFFIXES: readonly string[] = [".env"];
+export const SKIP_FILE_SUFFIXES: readonly string[] = [".env", ".lock"];
 
 export const BINARY_EXTENSIONS: readonly string[] = [
   ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".tif", ".tiff", ".avif", ".heic", ".psd",
@@ -23,7 +25,7 @@ export interface ScanLimits {
 
 export const DEFAULT_LIMITS: ScanLimits = {
   maxFileBytes: 1_048_576,
-  maxFiles: 400,
+  maxFiles: 600,
   maxDepth: 50,
 };
 

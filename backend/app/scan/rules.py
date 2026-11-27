@@ -3,9 +3,11 @@ SKIP_DIRECTORIES = frozenset(
     {"node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__"}
 )
 
-SKIP_FILE_EXACT = frozenset({".env"})
+SKIP_FILE_EXACT = frozenset(
+    {".env", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "bun.lockb"}
+)
 SKIP_FILE_PREFIXES = (".env.",)
-SKIP_FILE_SUFFIXES = (".env",)
+SKIP_FILE_SUFFIXES = (".env", ".lock")
 
 BINARY_EXTENSIONS = frozenset(
     {
@@ -18,7 +20,7 @@ BINARY_EXTENSIONS = frozenset(
 )  # fmt: skip
 
 MAX_FILE_BYTES = 1_048_576
-MAX_FILES = 400
+MAX_FILES = 600
 MAX_DEPTH = 50
 
 WHITESPACE = " \t\n\r\f\v"

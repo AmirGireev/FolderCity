@@ -17,9 +17,10 @@ interface Props {
   colorOf: (node: CityNode) => string;
   minHeight?: number;
   opacity?: number;
+  shadows?: boolean;
 }
 
-export function InstancedBoxes({ nodes, colorOf, minHeight = 0, opacity = 1 }: Props) {
+export function InstancedBoxes({ nodes, colorOf, minHeight = 0, opacity = 1, shadows = false }: Props) {
   const meshRef = useRef<InstancedMesh>(null);
   const invalidate = useThree((state) => state.invalidate);
   const hoverId = useCityStore((state) => state.hoverId);
@@ -62,6 +63,8 @@ export function InstancedBoxes({ nodes, colorOf, minHeight = 0, opacity = 1 }: P
       key={nodes.length}
       ref={meshRef}
       args={[undefined, undefined, nodes.length]}
+      castShadow={shadows}
+      receiveShadow={shadows}
       onPointerMove={(event) => {
         const node = nodeAt(event);
         if (!node) return;

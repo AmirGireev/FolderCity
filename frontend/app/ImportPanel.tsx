@@ -171,7 +171,7 @@ export function ImportPanel() {
           </ul>
           {summary.truncated && (
             <p className="warning">
-              Not everything was scanned: the limit is 400 files (and 50 folder levels).
+              Not everything was scanned: the limit is 600 files (and 50 folder levels).
             </p>
           )}
           <button type="button" onClick={download}>

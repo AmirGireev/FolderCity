@@ -33,6 +33,12 @@ describe("rules match schema/scan-rules.json", () => {
 describe("Filter", () => {
   it.each([".env", ".env.local", ".env.production", "prod.env", "a.env"])("%s is skipped", (n) =>
     expect(shouldSkipFile(n)).toBe(true));
+  it.each(["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "Cargo.lock", "poetry.lock", "bun.lockb"])(
+    "%s is skipped as a lock file",
+    (n) => expect(shouldSkipFile(n)).toBe(true),
+  );
+  it.each(["package.json", "lock.py", "lockfile.md", "block.txt"])("%s is kept although it looks like a lock file", (n) =>
+    expect(shouldSkipFile(n)).toBe(false));
   it.each(["environment.py", "env.py", "README.md", "my.environment"])("%s is kept", (n) =>
     expect(shouldSkipFile(n)).toBe(false));
   it.each(["node_modules", ".git", "venv", ".venv", "dist", "build", ".next", "__pycache__"])("folder %s is skipped", (n) =>

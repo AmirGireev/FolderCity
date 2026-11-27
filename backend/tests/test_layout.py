@@ -1,5 +1,6 @@
 # Tests the city layout: roles, heights, containment and no overlapping rectangles.
 import json
+import math
 import random
 
 import pytest
@@ -8,6 +9,8 @@ from jsonschema import Draft202012Validator
 from app.layout import LayoutError, build_city
 from app.layout.city import (
     EMPTY_FILE_HEIGHT,
+    FOLDER_GAP,
+    HEIGHT_SQRT_SCALE,
     MAX_BUILDING_HEIGHT,
     MIN_BUILDING_HEIGHT,
     PLATFORM_HEIGHT,
@@ -81,17 +84,44 @@ def test_roles_follow_the_scan_data():
     assert nodes["src/inner"].type == "empty_folder"
 
 
-def test_heights_follow_roles_and_line_counts():
+def test_heights_grow_with_square_root_with_line_counts():
     scan = make_scan(
         {"small.py": "a\n", "big.py": "x\n" * 300, "huge.py": "x\n" * 100000, "blank.py": ""}, ["gap"]
     )
     nodes = by_path(build_city(scan))
-    assert nodes["small.py"].dimensions.height == MIN_BUILDING_HEIGHT
-    assert nodes["big.py"].dimensions.height == pytest.approx(30)
-    assert nodes["huge.py"].dimensions.height == MAX_BUILDING_HEIGHT
+    heights = {name: nodes[name].dimensions.height for name in ("small.py", "big.py", "huge.py")}
+    assert heights["small.py"] == pytest.approx(MIN_BUILDING_HEIGHT + HEIGHT_SQRT_SCALE * math.sqrt(1))
+    assert heights["big.py"] == pytest.approx(MIN_BUILDING_HEIGHT + HEIGHT_SQRT_SCALE * math.sqrt(300))
+    assert heights["small.py"] < heights["big.py"] < heights["huge.py"] <= MAX_BUILDING_HEIGHT
+    assert heights["huge.py"] > 3 * heights["big.py"] or heights["huge.py"] == MAX_BUILDING_HEIGHT
     assert nodes["blank.py"].dimensions.height == EMPTY_FILE_HEIGHT
     assert nodes[""].dimensions.height == PLATFORM_HEIGHT
     assert nodes["gap"].dimensions.height == 0
+
+
+def test_files_without_text_get_the_minimum_height():
+    scan = ScanResult(
+        rootName="p", directories=[], emptyDirectories=[], truncated=False,
+        files=[ScanFile(path="logo.png", size=10, content=None, omitted="binary", isEmpty=False)],
+    )  # fmt: skip
+    assert by_path(build_city(scan))["logo.png"].dimensions.height == MIN_BUILDING_HEIGHT
+
+
+def test_nesting_level_is_stored_as_depth_metric():
+    nodes = by_path(build_city(make_scan({"a/b/c.py": "x\n", "top.py": "y\n"})))
+    assert nodes[""].metrics.depth == 0
+    assert nodes["top.py"].metrics.depth == 1
+    assert nodes["a"].metrics.depth == 1
+    assert nodes["a/b"].metrics.depth == 2
+    assert nodes["a/b/c.py"].metrics.depth == 3
+
+
+def test_sibling_folders_keep_a_clear_gap():
+    nodes = by_path(build_city(make_scan({"d1/a.py": "x" * 40000, "d2/b.py": "x" * 40000, "c.py": "x" * 40000})))
+    ax0, az0, ax1, az1 = rect_of(nodes["d1"])
+    bx0, bz0, bx1, bz1 = rect_of(nodes["d2"])
+    gap = max(bx0 - ax1, ax0 - bx1, bz0 - az1, az0 - bz1)
+    assert gap >= FOLDER_GAP - 1e-6
 
 
 def test_children_stand_on_top_of_their_parent():

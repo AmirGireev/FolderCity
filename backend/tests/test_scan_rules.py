@@ -34,6 +34,19 @@ def test_env_files_skipped(name):
     assert rules.should_skip_file(name)
 
 
+@pytest.mark.parametrize(
+    "name",
+    ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "Cargo.lock", "poetry.lock", "Pipfile.lock", "bun.lockb"],
+)
+def test_lock_files_skipped(name):
+    assert rules.should_skip_file(name)
+
+
+@pytest.mark.parametrize("name", ["package.json", "lock.py", "lockfile.md", "block.txt"])
+def test_files_that_only_look_like_lock_files_are_kept(name):
+    assert not rules.should_skip_file(name)
+
+
 @pytest.mark.parametrize("name", ["environment.py", "env.py", "README.md", "my.environment"])
 def test_other_files_not_skipped(name):
     assert not rules.should_skip_file(name)

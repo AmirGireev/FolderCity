@@ -30,9 +30,9 @@ export function colorForExtension(extension: string | undefined): string {
 }
 
 export function platformColor(node: CityNode): string {
-  const level = Math.round(node.dimensions.position.y / 0.5);
-  const lightness = Math.min(48, 22 + level * 4);
-  return `hsl(215, 14%, ${lightness}%)`;
+  const level = node.metrics.depth ?? (node.path === "" ? 0 : node.path.split("/").length);
+  const lightness = Math.min(64, 18 + level * 8);
+  return `hsl(215, 18%, ${lightness}%)`;
 }
 
 export const HOVER_COLOR = "#ffffff";

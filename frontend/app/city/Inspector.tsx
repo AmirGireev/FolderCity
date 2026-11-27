@@ -25,6 +25,8 @@ export function Inspector() {
         <dd>{node.path === "" ? "/ (root)" : node.path}</dd>
         <dt>Type</dt>
         <dd>{node.type.replace("_", " ")}</dd>
+        <dt>Depth</dt>
+        <dd>{node.metrics.depth === undefined ? "–" : `${node.metrics.depth} ${node.metrics.depth === 1 ? "level" : "levels"} below the root`}</dd>
         <dt>Size</dt>
         <dd>{formatBytes(node.metrics.sizeBytes)}</dd>
         {isFolder ? (

@@ -1,7 +1,7 @@
 // Tests camera poses, outlines, level of detail, colors and number formatting.
 import { describe, expect, it } from "vitest";
-import { colorForExtension, hashedColor } from "../src/city/colors";
-import { cameraPoseFor, distanceBetween, nodeCenter, outlineSegments } from "../src/city/geometry";
+import { colorForExtension, hashedColor, platformColor } from "../src/city/colors";
+import { boxEdgeSegments, cameraPoseFor, distanceBetween, nodeCenter, outlineSegments } from "../src/city/geometry";
 import { formatBytes } from "../src/city/format";
 import { nearbyFolderLabels } from "../src/city/lod";
 import type { CityNode } from "../src/types/cityModel";
@@ -61,5 +61,22 @@ describe("colors and formatting", () => {
     expect(formatBytes(512)).toBe("512 B");
     expect(formatBytes(2048)).toBe("2.0 KB");
     expect(formatBytes(3 * 1024 * 1024)).toBe("3.0 MB");
+  });
+});
+
+describe("edges and depth shading", () => {
+  it("gives every box twelve edges", () => {
+    const segments = boxEdgeSegments(node("a", 1, 2, 3, 4, 5, 6));
+    expect(segments).toHaveLength(12 * 2 * 3);
+    const ys = segments.filter((_, i) => i % 3 === 1);
+    expect(Math.min(...ys)).toBe(6);
+    expect(Math.max(...ys)).toBe(11);
+  });
+
+  it("makes deeper platforms lighter", () => {
+    const lightness = (depth: number) =>
+      Number(/(\d+)%\)$/.exec(platformColor({ ...node("p", 0, 0), metrics: { depth } }))?.[1]);
+    expect(lightness(1)).toBeGreaterThan(lightness(0));
+    expect(lightness(3)).toBeGreaterThan(lightness(2));
   });
 });

@@ -26,6 +26,7 @@ export interface Metrics {
   sizeBytes?: number;
   lines?: number;
   fileCount?: number;
+  depth?: number;
   extension?: string;
   language?: string;
 
