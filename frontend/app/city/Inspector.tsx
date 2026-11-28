@@ -1,15 +1,19 @@
-// Panel with name, path, size, lines and import relations of the selected node.
+// Panel with name, path, size, lines, import relations, metrics and findings of the selected node.
 "use client";
 
 import { formatBytes } from "../../src/city/format";
 import { useCityStore } from "../../src/city/store";
 import { ArchitectureInfo } from "./ArchitectureInfo";
+import { FindingsInfo } from "./FindingsInfo";
+import { MetricsInfo } from "./MetricsInfo";
 
 export function Inspector() {
   const node = useCityStore((state) => (state.selectedId ? state.nodesById.get(state.selectedId) : undefined));
   const flyTo = useCityStore((state) => state.flyTo);
   const relations = useCityStore((state) => state.relations);
   const extended = useCityStore((state) => state.extendedDetails);
+  const showComplexity = useCityStore((state) => state.layers.complexity);
+  const showFindings = useCityStore((state) => state.layers.errors);
   const selectAndFly = useCityStore((state) => state.selectAndFly);
 
   if (!node) {
@@ -53,6 +57,8 @@ export function Inspector() {
           <RelationList title="Imported by" ids={importedBy.map((edge) => edge.source)} onPick={selectAndFly} />
         </>
       )}
+      {!isFolder && (extended || showComplexity) && <MetricsInfo node={node} />}
+      {!isFolder && (extended || showFindings) && <FindingsInfo fileId={node.id} />}
       {!isFolder && <ArchitectureInfo fileId={node.id} extended={extended} />}
       <button type="button" className="btn small" onClick={() => flyTo(node.id)}>
         Fly to

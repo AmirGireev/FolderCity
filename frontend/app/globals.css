@@ -1179,3 +1179,149 @@ input[type="checkbox"] {
   border: none;
   border-radius: 0;
 }
+
+/* ---------- metrics, findings and fix suggestions ---------- */
+
+.metrics-info,
+.findings-info {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.metrics-info h4,
+.findings-info h4 {
+  margin: 0.4rem 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.metrics-info .note,
+.findings-info .note,
+.fix-view .note {
+  margin: 0.25rem 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.findings-info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.findings-info li {
+  margin: 0.45rem 0;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+}
+
+.sev {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sev.high {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.sev.medium {
+  background: rgba(251, 146, 60, 0.2);
+  color: #fb923c;
+}
+
+.sev.low {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fbbf24;
+}
+
+.finding-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.finding-link:hover {
+  text-decoration: underline;
+}
+
+.finding-message {
+  display: block;
+  margin: 0.2rem 0 0.35rem;
+  color: #c4cdd6;
+  font-size: 0.8rem;
+  word-break: break-word;
+}
+
+.error-note {
+  color: var(--danger) !important;
+}
+
+.diff {
+  margin: 0.4rem 0;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 0.75rem;
+  overflow: auto;
+}
+
+.diff-line {
+  display: block;
+  white-space: pre;
+}
+
+.diff-line.add {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+
+.diff-line.remove {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.diff-line.hunk {
+  color: var(--accent);
+}
+
+.diff-line.header {
+  color: var(--muted);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.2rem 0.4rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.legend .ramp {
+  flex: 1;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, hsl(130, 75%, 48%), hsl(65, 75%, 48%), hsl(0, 75%, 48%));
+}
+
+.legend .cycle-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: #d946ef;
+}

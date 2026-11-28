@@ -85,30 +85,30 @@ class Resolver:
         return _closest(self._dotted[kind].get(dotted, []), importer)
 
     def _resolve_python(self, importer: str, ref: ImportRef) -> list[str]:
-        results: list[str] = []
+        main: Optional[str] = None
+        subs: list[str] = []
         if ref.level > 0:
             base = _dir_of(importer)
             for _ in range(ref.level - 1):
                 base = _dir_of(base)
             if ref.module:
                 main = self._python_relative(base, ref.module)
-                if main:
-                    results.append(main)
             elif posixpath.join(base, "__init__.py") in self.paths:
-                results.append(posixpath.join(base, "__init__.py"))
+                main = posixpath.join(base, "__init__.py")
             for name in ref.names:
                 sub = self._python_relative(base, f"{ref.module}.{name}" if ref.module else name)
                 if sub:
-                    results.append(sub)
-            return results
-        main = self._dotted_lookup("python", ref.module, importer)
-        if main:
-            results.append(main)
-        for name in ref.names:
-            sub = self._dotted_lookup("python", f"{ref.module}.{name}", importer)
-            if sub:
-                results.append(sub)
-        return results
+                    subs.append(sub)
+        else:
+            main = self._dotted_lookup("python", ref.module, importer)
+            for name in ref.names:
+                sub = self._dotted_lookup("python", f"{ref.module}.{name}", importer)
+                if sub:
+                    subs.append(sub)
+        only_submodules = bool(ref.names) and len(subs) == len(ref.names)
+        if main and main.endswith("__init__.py") and only_submodules:
+            main = None
+        return ([main] if main else []) + subs
 
     def _python_relative(self, base: str, dotted: str) -> Optional[str]:
         target = posixpath.normpath(posixpath.join(base, *dotted.split(".")))

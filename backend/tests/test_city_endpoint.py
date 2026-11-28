@@ -59,3 +59,26 @@ def test_city_contains_architecture_elements():
         ("server", "Dockerfile: python:3.12 (port 8000)", "Dockerfile", 1),
         ("api", "GET /items", "api.py", 1),
     ]
+
+
+def test_city_contains_complexity_cycles_blast_radius_and_findings():
+    code_a = "import b\n\n\ndef f(x):\n    if x and x > 1:\n        return b.g(x)\n    return 0\n"
+    code_b = "import a\n\n\ndef g(x):\n    return eval(x)\n"
+    scan = {
+        "schemaVersion": "1.0", "rootName": "p", "directories": [], "emptyDirectories": [], "truncated": False,
+        "files": [
+            {"path": "a.py", "size": len(code_a), "content": code_a, "omitted": None, "isEmpty": False},
+            {"path": "b.py", "size": len(code_b), "content": code_b, "omitted": None, "isEmpty": False},
+            {"path": "c.py", "size": 10, "content": "import a\n", "omitted": None, "isEmpty": False},
+        ],
+    }  # fmt: skip
+    body = client.post("/city", json=scan).json()
+    nodes = {n["id"]: n for n in body["nodes"]}
+    assert nodes["a.py"]["metrics"]["complexity"] == 3
+    assert nodes["a.py"]["metrics"]["cycle"] == nodes["b.py"]["metrics"]["cycle"] == 1
+    assert nodes["a.py"]["metrics"]["cycleSize"] == 2
+    assert "cycle" not in nodes["c.py"]["metrics"]
+    assert nodes["a.py"]["metrics"]["blastRadius"] == 2
+    assert {s["name"]: s["complexity"] for s in body["symbols"]} == {"f": 3, "g": 1}
+    assert any(f["fileId"] == "b.py" and f["line"] == 5 and f["severity"] == "high" for f in body["findings"])
+    assert all(set(f) == {"id", "fileId", "line", "rule", "message", "severity", "source"} for f in body["findings"])

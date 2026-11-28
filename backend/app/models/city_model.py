@@ -9,6 +9,8 @@ NodeType = Literal["folder", "file", "empty_folder", "empty_file"]
 ArchitectureKind = Literal["api", "database", "external", "server"]
 SourceKind = Literal["local", "github", "demo"]
 SymbolKind = Literal["function", "class", "method"]
+Severity = Literal["low", "medium", "high"]
+FindingSource = Literal["ruff", "rules"]
 
 
 class _Strict(BaseModel):
@@ -69,6 +71,17 @@ class Symbol(_Strict):
     name: str
     startLine: int = Field(ge=1)
     endLine: int = Field(ge=1)
+    complexity: Optional[int] = Field(default=None, ge=1)
+
+
+class Finding(_Strict):
+    id: str = Field(min_length=1)
+    fileId: str
+    line: int = Field(ge=1)
+    rule: str = Field(min_length=1)
+    message: str
+    severity: Severity
+    source: FindingSource
 
 
 class Source(_Strict):
@@ -86,6 +99,7 @@ class CityModel(_Strict):
     edges: list[ImportEdge]
     architecture: list[ArchitectureNode]
     symbols: list[Symbol]
+    findings: list[Finding]
 
     def to_json_dict(self) -> dict[str, Union[str, list, dict]]:
         data = self.model_dump(mode="json", exclude_none=True)

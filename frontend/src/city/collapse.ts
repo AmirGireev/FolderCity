@@ -18,6 +18,8 @@ export interface CollapseInfo {
   size: number;
   clusterHeight: number;
   dominantExtension?: string;
+  maxComplexity?: number;
+  hasCycle: boolean;
 }
 
 export interface CollapseIndex {
@@ -29,6 +31,8 @@ export interface CollapseIndex {
 interface Stats {
   maxTop: number;
   extensions: Map<string, number>;
+  maxComplexity: number;
+  hasCycle: boolean;
 }
 
 export function buildCollapseIndex(city: CityModel): CollapseIndex {
@@ -40,6 +44,8 @@ export function buildCollapseIndex(city: CityModel): CollapseIndex {
     const stats: Stats = {
       maxTop: node.dimensions.position.y + node.dimensions.height,
       extensions: new Map(),
+      maxComplexity: node.metrics.complexity ?? 0,
+      hasCycle: node.metrics.cycle !== undefined,
     };
     const extension = node.metrics.extension;
     if (node.type === "file" && extension) stats.extensions.set(extension, 1);
@@ -48,6 +54,8 @@ export function buildCollapseIndex(city: CityModel): CollapseIndex {
     for (const kid of kids) {
       const kidStats = visit(kid);
       stats.maxTop = Math.max(stats.maxTop, kidStats.maxTop);
+      stats.maxComplexity = Math.max(stats.maxComplexity, kidStats.maxComplexity);
+      stats.hasCycle = stats.hasCycle || kidStats.hasCycle;
       for (const [ext, count] of kidStats.extensions) {
         stats.extensions.set(ext, (stats.extensions.get(ext) ?? 0) + count);
       }
@@ -66,6 +74,8 @@ export function buildCollapseIndex(city: CityModel): CollapseIndex {
         size: Math.max(node.dimensions.width, node.dimensions.depth),
         clusterHeight: Math.min(CLUSTER_MAX_HEIGHT, Math.max(CLUSTER_MIN_HEIGHT, 0.6 * (stats.maxTop - top))),
         dominantExtension: dominant,
+        maxComplexity: stats.maxComplexity > 0 ? stats.maxComplexity : undefined,
+        hasCycle: stats.hasCycle,
       });
     }
     return stats;

@@ -42,8 +42,11 @@
     { "id": "db:postgres", "kind": "database", "label": "PostgreSQL", "fileId": "src/db.py", "line": 3 }
   ],
   "symbols": [
-    { "id": "src/main.py#main@5", "fileId": "src/main.py", "kind": "function", "name": "main", "startLine": 5, "endLine": 20 },
+    { "id": "src/main.py#main@5", "fileId": "src/main.py", "kind": "function", "name": "main", "startLine": 5, "endLine": 20, "complexity": 3 },
     { "id": "src/db.py#Database@2", "fileId": "src/db.py", "kind": "class", "name": "Database", "startLine": 2, "endLine": 14 },
     { "id": "src/db.py#Database.connect@4", "fileId": "src/db.py", "kind": "method", "name": "Database.connect", "startLine": 4, "endLine": 8 }
+  ],
+  "findings": [
+    { "id": "rules:FC001@src/db.py:3", "fileId": "src/db.py", "line": 3, "rule": "FC001", "message": "A secret value is written directly in the code.", "severity": "high", "source": "rules" }
   ]
 }

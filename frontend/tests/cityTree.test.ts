@@ -56,10 +56,10 @@ describe("layers", () => {
     }
   });
 
-  it("keeps layers that are not built yet switched off", () => {
+  it("lets the complexity and findings layers be turned on too", () => {
     const available = (key: string) => LAYER_DEFINITIONS.find((l) => l.key === key)!.isAvailable(city);
-    expect(available("complexity")).toBe(false);
-    expect(available("errors")).toBe(false);
+    expect(available("complexity")).toBe(true);
+    expect(available("errors")).toBe(true);
   });
 
   it("tells which layers found something", () => {

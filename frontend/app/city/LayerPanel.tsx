@@ -30,6 +30,14 @@ export function LayerPanel() {
           </li>
         );
       })}
+      {layers.complexity && (
+        <li className="legend" aria-label="Complexity legend">
+          simple
+          <span className="ramp" />
+          complex
+          <span className="cycle-dot" /> circular
+        </li>
+      )}
     </ul>
   );
 }

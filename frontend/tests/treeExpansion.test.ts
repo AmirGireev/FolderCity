@@ -27,7 +27,7 @@ const city: CityModel = {
   ],
   edges: [],
   architecture: [],
-  symbols: [],
+  symbols: [], findings: [],
 };
 
 const open = () => [...useCityStore.getState().expandedIds].sort();

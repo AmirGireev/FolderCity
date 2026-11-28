@@ -8,6 +8,12 @@ export type ArchitectureKind = (typeof ARCHITECTURE_KINDS)[number];
 export const SYMBOL_KINDS = ["function", "class", "method"] as const;
 export type SymbolKind = (typeof SYMBOL_KINDS)[number];
 
+export const SEVERITIES = ["low", "medium", "high"] as const;
+export type Severity = (typeof SEVERITIES)[number];
+
+export const FINDING_SOURCES = ["ruff", "rules"] as const;
+export type FindingSource = (typeof FINDING_SOURCES)[number];
+
 export const SOURCE_KINDS = ["local", "github", "demo"] as const;
 export type SourceKind = (typeof SOURCE_KINDS)[number];
 
@@ -30,6 +36,10 @@ export interface Metrics {
   lines?: number;
   fileCount?: number;
   depth?: number;
+  complexity?: number;
+  blastRadius?: number;
+  cycle?: number;
+  cycleSize?: number;
   extension?: string;
   language?: string;
 
@@ -68,6 +78,17 @@ export interface CitySymbol {
   name: string;
   startLine: number;
   endLine: number;
+  complexity?: number;
+}
+
+export interface Finding {
+  id: string;
+  fileId: string;
+  line: number;
+  rule: string;
+  message: string;
+  severity: Severity;
+  source: FindingSource;
 }
 
 export interface CitySource {
@@ -85,4 +106,5 @@ export interface CityModel {
   edges: ImportEdge[];
   architecture: ArchitectureNode[];
   symbols: CitySymbol[];
+  findings: Finding[];
 }

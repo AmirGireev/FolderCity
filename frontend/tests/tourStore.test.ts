@@ -34,7 +34,7 @@ function makeCity(extra: CityNode[] = []): CityModel {
     ],
     edges: [],
     architecture: [arch("api", "GET /a", "api/routes.py"), arch("database", "SQL: users", "api/db.py")],
-    symbols: [],
+    symbols: [], findings: [],
   };
 }
 

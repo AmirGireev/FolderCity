@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_KINDS,
   NODE_TYPES,
+  SEVERITIES,
+  FINDING_SOURCES,
   SOURCE_KINDS,
   SYMBOL_KINDS,
   type CityModel,
@@ -31,12 +33,17 @@ describe("CityModel types match the JSON schema", () => {
     expect([...SYMBOL_KINDS].sort()).toEqual([...schema.$defs.SymbolKind.enum].sort());
   });
 
+  it("Severity and FindingSource values match", () => {
+    expect([...SEVERITIES].sort()).toEqual([...schema.$defs.Severity.enum].sort());
+    expect([...FINDING_SOURCES].sort()).toEqual([...schema.$defs.FindingSource.enum].sort());
+  });
+
   it("source kinds match", () => {
     expect([...SOURCE_KINDS].sort()).toEqual([...schema.properties.source.properties.kind.enum].sort());
   });
 
   it("required fields of the root object match", () => {
-    const tsRequired = ["schemaVersion", "rootId", "nodes", "edges", "architecture", "symbols"];
+    const tsRequired = ["schemaVersion", "rootId", "nodes", "edges", "architecture", "symbols", "findings"];
     expect(tsRequired.sort()).toEqual([...schema.required].sort());
   });
 
@@ -44,6 +51,10 @@ describe("CityModel types match the JSON schema", () => {
     for (const n of typedExample.nodes) expect(NODE_TYPES).toContain(n.type);
     for (const a of typedExample.architecture) expect(ARCHITECTURE_KINDS).toContain(a.kind);
     for (const sym of typedExample.symbols) expect(SYMBOL_KINDS).toContain(sym.kind);
+    for (const f of typedExample.findings) {
+      expect(SEVERITIES).toContain(f.severity);
+      expect(FINDING_SOURCES).toContain(f.source);
+    }
     expect(typedExample.nodes.some((n) => n.id === typedExample.rootId)).toBe(true);
   });
 });

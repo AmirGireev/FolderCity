@@ -9,7 +9,7 @@ from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
 from app.models import CityModel
-from app.models.city_model import ArchitectureKind, NodeType, SymbolKind
+from app.models.city_model import ArchitectureKind, FindingSource, NodeType, Severity, SymbolKind
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = json.loads((ROOT / "schema" / "citymodel.schema.json").read_text(encoding="utf-8"))
@@ -43,10 +43,12 @@ def test_enums_match_schema():
     assert set(get_args(NodeType)) == set(SCHEMA["$defs"]["NodeType"]["enum"])
     assert set(get_args(ArchitectureKind)) == set(SCHEMA["$defs"]["ArchitectureKind"]["enum"])
     assert set(get_args(SymbolKind)) == set(SCHEMA["$defs"]["SymbolKind"]["enum"])
+    assert set(get_args(Severity)) == set(SCHEMA["$defs"]["Severity"]["enum"])
+    assert set(get_args(FindingSource)) == set(SCHEMA["$defs"]["FindingSource"]["enum"])
 
 
 def test_required_fields_match_schema():
-    from app.models.city_model import ArchitectureNode, Node, Symbol
+    from app.models.city_model import ArchitectureNode, Finding, Node, Symbol
 
     def required(model):
         return {name for name, f in model.model_fields.items() if f.is_required()}
@@ -54,6 +56,7 @@ def test_required_fields_match_schema():
     assert required(Node) == set(SCHEMA["$defs"]["Node"]["required"])
     assert required(ArchitectureNode) == set(SCHEMA["$defs"]["ArchitectureNode"]["required"])
     assert required(Symbol) == set(SCHEMA["$defs"]["Symbol"]["required"])
+    assert required(Finding) == set(SCHEMA["$defs"]["Finding"]["required"])
 
 
 @pytest.mark.parametrize(
@@ -68,6 +71,11 @@ def test_required_fields_match_schema():
         lambda d: d["symbols"][0].update(kind="variable"),
         lambda d: d["symbols"][0].update(startLine=0),
         lambda d: d.pop("symbols"),
+        lambda d: d.pop("findings"),
+        lambda d: d["findings"][0].update(severity="critical"),
+        lambda d: d["findings"][0].update(source="human"),
+        lambda d: d["findings"][0].update(line=0),
+        lambda d: d["symbols"][0].update(complexity=0),
     ],
 )
 def test_invalid_data_rejected_by_both(mutate):

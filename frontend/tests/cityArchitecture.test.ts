@@ -49,7 +49,7 @@ const city: CityModel = {
     { source: "src/db.py", target: "src/main.py", line: 1 },
   ],
   architecture,
-  symbols: [],
+  symbols: [], findings: [],
 };
 const nodesById = new Map(nodes.map((n) => [n.id, n]));
 
@@ -182,8 +182,8 @@ describe("layers and selection of architecture elements", () => {
       expect(definition(key).isAvailable(null)).toBe(true);
       expect(definition(key).hasData!(city)).toBe(true);
     }
-    expect(definition("complexity").isAvailable(city)).toBe(false);
-    expect(definition("errors").isAvailable(city)).toBe(false);
+    expect(definition("complexity").isAvailable(city)).toBe(true);
+    expect(definition("errors").isAvailable(city)).toBe(true);
     const empty = { ...city, architecture: [] };
     expect(definition("apiGates").isAvailable(empty)).toBe(true);
     expect(definition("apiGates").hasData!(empty)).toBe(false);

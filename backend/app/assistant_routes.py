@@ -1,4 +1,4 @@
-# The endpoints of the AI assistant: /index, /ask, /tour/texts and /assistant/status.
+# The endpoints of the AI assistant: /index, /ask, /tour/texts, /fix and /assistant/status.
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -6,6 +6,7 @@ from .ai import AssistantError, AssistantService, get_service
 from .ai.assistant import MAX_QUESTION_CHARS
 from .ai.tour import MAX_FACTS_CHARS, MAX_STATIONS, StationFacts
 from .analysis import analyze
+from .autofix import MAX_CONTENT_CHARS, MAX_PATH_CHARS, propose_fix
 from .scan.model import ScanResult
 from .scan.rules import MAX_FILES
 
@@ -27,6 +28,13 @@ class TourStationIn(BaseModel):
 class TourTextsRequest(BaseModel):
     repoName: str = Field(max_length=100)
     stations: list[TourStationIn] = Field(min_length=1, max_length=MAX_STATIONS)
+
+
+class FixRequest(BaseModel):
+    path: str = Field(min_length=1, max_length=MAX_PATH_CHARS)
+    content: str = Field(max_length=MAX_CONTENT_CHARS)
+    rule: str = Field(min_length=1, max_length=40)
+    line: int = Field(ge=1)
 
 
 def _client_key(request: Request) -> str:
@@ -55,7 +63,7 @@ def index_repo(
     _limit(service.index_limiter, request)
     if len(scan.files) > MAX_FILES or sum(len(f.content or "") for f in scan.files) > MAX_INDEX_BYTES:
         raise HTTPException(status_code=413, detail="The repo is too large to index.")
-    analysis = analyze(scan)
+    analysis = analyze(scan, with_findings=False)
     result = service.index(scan.rootName, scan.files, analysis.symbols, analysis.architecture)
     return {
         "repoHash": result.repo_hash,
@@ -90,3 +98,22 @@ def tour_texts(
     except AssistantError as err:
         raise HTTPException(status_code=err.status_code, detail=err.message) from err
     return {"texts": [{"id": t.id, "title": t.title, "text": t.text} for t in texts]}
+
+
+@router.post("/fix")
+def fix(body: FixRequest, request: Request, service: AssistantService = Depends(get_service)) -> dict[str, object]:
+    _limit(service.ask_limiter, request)
+    try:
+        result = propose_fix(service.llm, body.path, body.content, body.rule, body.line)
+    except AssistantError as err:
+        raise HTTPException(status_code=err.status_code, detail=err.message) from err
+    return {
+        "ok": result.ok,
+        "reason": result.reason,
+        "startLine": result.start_line,
+        "endLine": result.end_line,
+        "explanation": result.explanation,
+        "diff": result.diff,
+        "before": result.before,
+        "after": result.after,
+    }

@@ -28,7 +28,6 @@ const hasArchitecture = (kind: ArchitectureKind) => (city: CityModel | null) =>
   city?.architecture.some((item) => item.kind === kind) ?? false;
 
 const always = () => true;
-const never = () => false;
 
 export const LAYER_DEFINITIONS: readonly LayerDefinition[] = [
   { key: "emptyFiles", label: "Empty files", defaultOn: true, isAvailable: always },
@@ -45,8 +44,20 @@ export const LAYER_DEFINITIONS: readonly LayerDefinition[] = [
     isAvailable: always,
     hasData: (city) => hasArchitecture("api")(city) && hasArchitecture("database")(city),
   },
-  { key: "complexity", label: "Complexity", defaultOn: false, isAvailable: never },
-  { key: "errors", label: "Errors", defaultOn: false, isAvailable: never },
+  {
+    key: "complexity",
+    label: "Complexity (colors)",
+    defaultOn: false,
+    isAvailable: always,
+    hasData: (city) => city?.nodes.some((node) => node.metrics.complexity !== undefined) ?? false,
+  },
+  {
+    key: "errors",
+    label: "Findings (lint and rules)",
+    defaultOn: false,
+    isAvailable: always,
+    hasData: (city) => (city?.findings.length ?? 0) > 0,
+  },
 ];
 
 export function defaultLayers(): Layers {

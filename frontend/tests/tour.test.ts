@@ -43,7 +43,7 @@ const city: CityModel = {
     arch("api", "GET /a", "api/routes.py"), arch("api", "POST /a", "api/routes.py"), arch("api", "GET /b", "api/more.py"),
     arch("database", "SQL: users", "api/db.py"), arch("external", "requests: x.io", "api/more.py"), arch("server", "Dockerfile: python", "Dockerfile"),
   ],
-  symbols: [],
+  symbols: [], findings: [],
 };
 const ids = new Set(nodes.map((n) => n.id));
 

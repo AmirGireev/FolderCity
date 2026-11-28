@@ -38,7 +38,7 @@ const nodes: CityNode[] = [
   file("small/only.py", "small", 150, 0),
   make("empty", "empty_folder", "root", [170, 1, 0, 5, 0], { fileCount: 0 }),
 ];
-const city = { schemaVersion: "1.0", rootId: "root", nodes, edges: [], architecture: [], symbols: [] } as CityModel;
+const city = { schemaVersion: "1.0", rootId: "root", nodes, edges: [], architecture: [], symbols: [], findings: [] } as CityModel;
 const nodesById = new Map(nodes.map((n) => [n.id, n]));
 const index = buildCollapseIndex(city);
 const none = new Set<string>();

@@ -5,7 +5,7 @@
   "description": "Contract between backend and frontend: a code base as a city. Also the format of the precomputed demos.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "rootId", "nodes", "edges", "architecture", "symbols"],
+  "required": ["schemaVersion", "rootId", "nodes", "edges", "architecture", "symbols", "findings"],
   "properties": {
     "schemaVersion": { "const": "1.0" },
     "source": {
@@ -24,7 +24,8 @@
     "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
     "edges": { "type": "array", "items": { "$ref": "#/$defs/ImportEdge" } },
     "architecture": { "type": "array", "items": { "$ref": "#/$defs/ArchitectureNode" } },
-    "symbols": { "type": "array", "description": "Functions, classes and methods found in files.", "items": { "$ref": "#/$defs/Symbol" } }
+    "symbols": { "type": "array", "description": "Functions, classes and methods found in files.", "items": { "$ref": "#/$defs/Symbol" } },
+    "findings": { "type": "array", "description": "Lint and rule findings (not proven bugs).", "items": { "$ref": "#/$defs/Finding" } }
   },
   "$defs": {
     "NodeType": {
@@ -100,7 +101,28 @@
         "kind": { "$ref": "#/$defs/SymbolKind" },
         "name": { "type": "string", "description": "Methods are written as Class.method." },
         "startLine": { "type": "integer", "minimum": 1 },
-        "endLine": { "type": "integer", "minimum": 1 }
+        "endLine": { "type": "integer", "minimum": 1 },
+        "complexity": { "type": "integer", "minimum": 1, "description": "Cyclomatic complexity of a function or method." }
+      }
+    },
+    "Severity": {
+      "enum": ["low", "medium", "high"]
+    },
+    "FindingSource": {
+      "enum": ["ruff", "rules"]
+    },
+    "Finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fileId", "line", "rule", "message", "severity", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "fileId": { "type": "string", "description": "id of the file (node) that contains the finding." },
+        "line": { "type": "integer", "minimum": 1 },
+        "rule": { "type": "string", "minLength": 1 },
+        "message": { "type": "string" },
+        "severity": { "$ref": "#/$defs/Severity" },
+        "source": { "$ref": "#/$defs/FindingSource" }
       }
     },
     "ArchitectureKind": {

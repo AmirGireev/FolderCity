@@ -179,4 +179,4 @@ def build_city(scan: ScanResult) -> CityModel:
     side = math.sqrt(root.area)
     nodes: list[Node] = []
     _place(root, Rect(0.0, 0.0, side, side), 0.0, None, nodes)
-    return CityModel(rootId=ROOT_ID, nodes=nodes, edges=[], architecture=[], symbols=[])
+    return CityModel(rootId=ROOT_ID, nodes=nodes, edges=[], architecture=[], symbols=[], findings=[])

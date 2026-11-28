@@ -30,7 +30,7 @@ def evaluate(
     embedder: Optional[Embedder], llm: Optional[LLM], eval_dir: Path = EVAL_DIR
 ) -> list[QuestionResult]:
     scan = scan_directory(eval_dir / "demo_repo", root_name="demo_repo")
-    analysis = analyze(scan)
+    analysis = analyze(scan, with_findings=False)
     service = AssistantService(
         MemoryStore(), embedder, llm, RateLimiter([(10_000, 60)]), RateLimiter([(10_000, 60)])
     )

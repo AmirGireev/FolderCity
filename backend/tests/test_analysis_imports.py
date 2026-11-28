@@ -146,3 +146,14 @@ def test_analysis_of_this_projects_own_backend():
     assert ("analysis/__init__.py", "analysis/graph.py") in found
     assert ("analysis/graph.py", "analysis/resolve.py") in found
     assert ("layout/__init__.py", "layout/city.py") in found
+
+
+def test_importing_only_submodules_of_a_package_does_not_link_the_package_itself():
+    files = {"pkg/__init__.py": "from . import a\n", "pkg/a.py": "from . import b\nfrom pkg import c\n", "pkg/b.py": "", "pkg/c.py": ""}
+    assert edges(files) == {("pkg/__init__.py", "pkg/a.py"), ("pkg/a.py", "pkg/b.py"), ("pkg/a.py", "pkg/c.py")}
+
+
+def test_importing_names_from_a_package_still_links_its_init_file():
+    files = {"pkg/__init__.py": "VALUE = 1\n", "pkg/a.py": "from . import VALUE\nfrom pkg import VALUE as V\n", "pkg/b.py": "from . import VALUE, c\n", "pkg/c.py": ""}
+    assert ("pkg/a.py", "pkg/__init__.py") in edges(files)
+    assert {("pkg/b.py", "pkg/__init__.py"), ("pkg/b.py", "pkg/c.py")} <= edges(files)

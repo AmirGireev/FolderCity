@@ -62,3 +62,17 @@ export function architectureColor(kind: ArchitectureKind): string {
 }
 
 export const DATA_PATH_COLOR = "#fde047";
+
+export const COMPLEXITY_NONE_COLOR = "#59636e";
+export const CYCLE_COLOR = "#d946ef";
+export const COMPLEXITY_LOW = 3;
+export const COMPLEXITY_HIGH = 25;
+
+export function complexityColor(node: CityNode): string {
+  if (node.metrics.cycle !== undefined) return CYCLE_COLOR;
+  const value = node.metrics.complexity;
+  if (value === undefined) return COMPLEXITY_NONE_COLOR;
+  const ratio = Math.min(1, Math.max(0, (value - COMPLEXITY_LOW) / (COMPLEXITY_HIGH - COMPLEXITY_LOW)));
+  const hue = Math.round(130 - ratio * 130);
+  return `hsl(${hue}, 75%, 48%)`;
+}
